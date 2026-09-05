@@ -549,8 +549,12 @@ fetch('locations.json')
 
 /* ---------------------------------------------------------
    13. РЕЖИМ КАРТОГРАФА (АДМИНКА)
-   Полная форма под новую схему: картинки, редкость, условия,
-   статус проверки. Ctrl+Shift+A — включить/выключить.
+   Доступ защищён настоящим логином через Netlify Identity (проверка
+   идёт на стороне Netlify, а не в браузере — в отличие от пароля,
+   зашитого в JS, это нельзя обойти через "Просмотр кода страницы").
+   Ctrl+Shift+A: если вы уже вошли — сразу переключает режим; если
+   нет — открывает окно входа, и режим включится сам после успешного
+   логина.
 --------------------------------------------------------- */
 let isAdminMode = false;
 let tempAdminMarker = null;
@@ -559,14 +563,45 @@ const adminPanel = document.getElementById('adminPanel');
 const admGoX = document.getElementById('admGoX');
 const admGoY = document.getElementById('admGoY');
 
+if (window.netlifyIdentity) {
+  netlifyIdentity.init();
+}
+
+function toggleAdminMode() {
+  isAdminMode = !isAdminMode;
+  // Панель показывается/прячется классом is-open — так же, как в CSS
+  // (.admin-panel.is-open { display:block }), а не через [hidden].
+  adminPanel.classList.toggle('is-open', isAdminMode);
+}
+
 window.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') {
-    isAdminMode = !isAdminMode;
-    // Панель показывается/прячется классом is-open — так же, как в CSS
-    // (.admin-panel.is-open { display:block }), а не через [hidden].
-    adminPanel.classList.toggle('is-open', isAdminMode);
+  if (!(e.ctrlKey && e.shiftKey && e.code === 'KeyA')) return;
+
+  const user = window.netlifyIdentity && netlifyIdentity.currentUser();
+  if (user) {
+    toggleAdminMode();
+    return;
+  }
+
+  if (window.netlifyIdentity) {
+    netlifyIdentity.open('login');
+  } else {
+    alert('Netlify Identity не загрузился — проверьте подключение к интернету и обновите страницу.');
   }
 });
+
+if (window.netlifyIdentity) {
+  // После успешного входа сразу включаем режим и закрываем окно логина —
+  // не нужно повторно жать Ctrl+Shift+A.
+  netlifyIdentity.on('login', () => {
+    netlifyIdentity.close();
+    if (!isAdminMode) toggleAdminMode();
+  });
+  // При выходе — на всякий случай выключаем режим, если он был включён.
+  netlifyIdentity.on('logout', () => {
+    if (isAdminMode) toggleAdminMode();
+  });
+}
 
 // Общий редактор точки: строит попап-форму (название/категория/редкость/
 // условия/картинки/статус) в указанных координатах. Используется и при
