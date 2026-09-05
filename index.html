@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- ============ SEO: базовые теги ============
+     ⚠️ Перед деплоем замените:
+     - все URL "https://leonida-map.example.com" на реальный домен
+     - og-image.png на настоящий скриншот карты 1200×630px
+       (без картинки превью в Reddit/Telegram/Discord будет пустым) -->
+<title>LEONIDA MAP — Интерактивная карта GTA VI: оружие, транспорт, пасхалки</title>
+<meta name="description" content="Неофициальная интерактивная карта Leonida (GTA VI): координаты оружия, транспорта, случайных событий и пасхалок. Отмечай найденное, ищи по названию.">
+<link rel="canonical" href="https://leonida-map.example.com/">
+
+<!-- Open Graph (превью в Facebook/Telegram/Discord/VK) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="LEONIDA MAP — Интерактивная карта GTA VI">
+<meta property="og:description" content="Все координаты оружия, транспорта, событий и пасхалок Leonida в одном месте. Фильтры, поиск, чек-лист найденного.">
+<meta property="og:image" content="https://leonida-map.example.com/og-image.png">
+<meta property="og:url" content="https://leonida-map.example.com/">
+<meta property="og:locale" content="ru_RU">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LEONIDA MAP — Интерактивная карта GTA VI">
+<meta name="twitter:description" content="Все координаты оружия, транспорта, событий и пасхалок Leonida в одном месте.">
+<meta name="twitter:image" content="https://leonida-map.example.com/og-image.png">
+
+<!-- Цвет адресной строки на мобильных (Android Chrome) -->
+<meta name="theme-color" content="#0f0f13">
+
+<!-- Leaflet.js -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Шрифты: Orbitron — вывеска/заголовки, Rajdhani — интерфейсный текст -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============ КНОПКА-ГАМБУРГЕР (только мобильные) ============ -->
+  <button id="hamburgerBtn" class="hamburger" aria-label="Открыть меню" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- ============ ЗАТЕМНЕНИЕ ФОНА ПРИ ОТКРЫТОМ САЙДБАРЕ (моб.) ============ -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- ============ БОКОВАЯ ПАНЕЛЬ ============ -->
+  <aside id="sidebar" class="sidebar">
+
+    <div class="sidebar-scroll">
+
+      <!-- Логотип -->
+      <header class="brand">
+        <h1 class="brand-title">
+          LEONIDA<span class="brand-title-accent">MAP</span>
+        </h1>
+        <p class="brand-subtitle">Явные координаты. Никаких секретов.</p>
+      </header>
+
+      <!-- Поиск -->
+      <div class="search-box">
+        <svg class="search-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          id="searchInput"
+          class="search-box-input"
+          type="text"
+          placeholder="Найти точку на карте…"
+          autocomplete="off"
+        >
+      </div>
+
+      <!-- Фильтры категорий -->
+      <nav class="filters" aria-label="Фильтры категорий">
+        <div class="filters-head">
+          <p class="filters-label">Слои карты</p>
+          <div class="filters-quick">
+            <button type="button" id="selectAllBtn" class="filters-quick-btn">Выбрать всё</button>
+            <button type="button" id="clearAllBtn" class="filters-quick-btn">Сбросить</button>
+          </div>
+        </div>
+        <div id="filterList" class="filter-list">
+          <!-- Генерируется в app.js на основе CATEGORIES -->
+        </div>
+
+        <label class="toggle-row">
+          <input type="checkbox" id="showUnverifiedToggle">
+          Показывать неподтверждённые точки (бета)
+        </label>
+      </nav>
+
+      <!-- Прогресс / статистика -->
+      <div class="progress-box">
+        <div class="progress-box-row">
+          <span>Отмечено</span>
+          <span id="progressText">0 / 0</span>
+        </div>
+        <div class="progress-track">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <button id="resetBtn" class="reset-btn">Сбросить отметки</button>
+      </div>
+
+      <!-- Отправка находки от пользователя -->
+      <button id="suggestBtn" class="suggest-btn">
+        📍 Предложить находку
+      </button>
+
+    </div>
+
+    <footer class="sidebar-footer">
+      <span class="pulse-dot"></span>
+      <span>
+        Неофициальный фан-проект. Не связан с Rockstar Games,
+        Take-Two Interactive и не одобрен ими.
+      </span>
+    </footer>
+  </aside>
+
+  <!-- ============ ПАНЕЛЬ КАРТОГРАФА ============
+       Видна только в режиме картографа (Ctrl+Shift+A). Позволяет
+       центрировать карту по точным X/Y без клика — удобно, когда
+       координаты уже известны (например, из датамайна). -->
+  <div id="adminPanel" class="admin-panel">
+    <div class="admin-panel-title">🛠 Режим картографа</div>
+    <div class="admin-panel-row">
+      <input id="admGoX" type="number" class="admin-panel-input" placeholder="X">
+      <input id="admGoY" type="number" class="admin-panel-input" placeholder="Y">
+      <button type="button" id="admGoBtn" class="admin-panel-btn">Перейти</button>
+    </div>
+    <p class="admin-panel-hint">Клик по карте — добавить точку · Ctrl+Shift+A — выключить</p>
+  </div>
+
+  <!-- ============ КОНТЕЙНЕР КАРТЫ ============ -->
+  <main id="map"></main>
+
+  <!-- ============ МОДАЛКА: ПРЕДЛОЖИТЬ НАХОДКУ ============
+       Форма отправляется через Netlify Forms (data-netlify="true") —
+       никакого бэкенда не нужно, заявки падают в панель Netlify → Forms.
+       Если хостинг не Netlify — этот блок нужно переделать под другой
+       сервис приёма форм (Formspree и т.п.). -->
+  <div id="suggestOverlay" class="modal-overlay"></div>
+
+  <div id="suggestModal" class="modal-card" role="dialog" aria-modal="true" aria-labelledby="suggestTitle">
+    <button id="suggestCloseBtn" class="modal-close" aria-label="Закрыть форму">✕</button>
+
+    <h2 id="suggestTitle" class="modal-title">Предложить находку</h2>
+    <p class="modal-subtitle">Нашли что-то на карте Leonida? Опишите — после проверки добавим точку на карту.</p>
+
+    <form
+      id="suggestForm"
+      name="location-suggestions"
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
+    >
+      <input type="hidden" name="form-name" value="location-suggestions">
+
+      <!-- Honeypot-поле для защиты от спам-ботов: обычные пользователи
+           его не видят и не заполняют, боты — как правило, заполняют всё. -->
+      <p class="hp-field" aria-hidden="true">
+        <label>Оставьте пустым: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+      </p>
+
+      <label class="form-label" for="sName">Название</label>
+      <input id="sName" name="name" class="form-input" type="text" required placeholder="Например: Тайник с дробовиком">
+
+      <label class="form-label" for="sCategory">Категория</label>
+      <select id="sCategory" name="category" class="form-input" required>
+        <option value="weapons">Оружие</option>
+        <option value="vehicles">Транспорт</option>
+        <option value="events">Случайные события</option>
+        <option value="eastereggs">Пасхалки</option>
+        <option value="underwater">Подводный мир</option>
+        <option value="activities">Активности</option>
+      </select>
+
+      <label class="form-label" for="sDescription">Описание</label>
+      <textarea id="sDescription" name="description" class="form-input" rows="3" required
+        placeholder="Где находится, как добраться, особенности..."></textarea>
+
+      <label class="form-label" for="sRarity">Насколько редкая находка? (необязательно)</label>
+      <select id="sRarity" name="rarity" class="form-input">
+        <option value="">Не уверен(а)</option>
+        <option value="common">Обычная — легко найти</option>
+        <option value="rare">Редкая — нужны условия</option>
+        <option value="unique">Уникальная — одна на карте</option>
+      </select>
+
+      <div class="form-row">
+        <div>
+          <label class="form-label" for="sX">X</label>
+          <input id="sX" name="x" class="form-input" type="number" placeholder="—" readonly>
+        </div>
+        <div>
+          <label class="form-label" for="sY">Y</label>
+          <input id="sY" name="y" class="form-input" type="number" placeholder="—" readonly>
+        </div>
+      </div>
+      <button type="button" id="pickLocationBtn" class="pick-btn">🗺 Указать точку на карте</button>
+
+      <label class="form-label" for="sContact">Контакт (необязательно)</label>
+      <input id="sContact" name="contact" class="form-input" type="text" placeholder="Discord/почта, если хотите быть на связи">
+
+      <div class="form-actions">
+        <button type="submit" id="suggestSubmitBtn" class="submit-btn">Отправить</button>
+      </div>
+
+      <p id="suggestStatus" class="suggest-status" hidden></p>
+    </form>
+  </div>
+
+  <!-- Leaflet.js -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
