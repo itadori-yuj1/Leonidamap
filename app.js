@@ -563,9 +563,8 @@ const adminPanel = document.getElementById('adminPanel');
 const admGoX = document.getElementById('admGoX');
 const admGoY = document.getElementById('admGoY');
 
-if (window.netlifyIdentity) {
-  netlifyIdentity.init();
-}
+// netlifyIdentity.init() уже вызван отдельным инлайн-скриптом в index.html —
+// см. комментарий там, почему это вынесено из app.js.
 
 function toggleAdminMode() {
   isAdminMode = !isAdminMode;
