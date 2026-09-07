@@ -526,13 +526,38 @@ window.addEventListener('hashchange', () => {
   if (id) goToLocationById(id);
 });
 
-fetch('locations.json')
-  .then(res => {
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  })
-  .then(data => {
-    locations = data;
+/* ---------------------------------------------------------
+   Подключение Supabase. anon-ключ намеренно открытый (не пароль) —
+   вся реальная защита на уровне базы через RLS-политики: сейчас
+   разрешено только чтение (SELECT), запись пока не разрешена никому.
+--------------------------------------------------------- */
+const SUPABASE_URL = 'https://izwqsntcwjvrjlbptbew.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6d3FzbnRjd2p2cmpsYnB0YmV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NTg4NDUsImV4cCI6MjEwNDMzNDg0NX0.ebl2eIKwHWJHohN3dngY2v8pqG-rSajhIUZNX0YXsig';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// В таблице колонка называется loc_id (не id — эта колонка у Supabase
+// занята под её собственный внутренний числовой id), поэтому здесь
+// переводим формат строки из базы в тот же вид объекта, который уже
+// использует весь остальной код (renderMarkers, buildPopupHtml и т.д.).
+function rowToLocation(row) {
+  return {
+    id: row.loc_id,
+    name: row.name,
+    category: row.category,
+    x: row.x,
+    y: row.y,
+    description: row.description,
+    images: row.images || [],
+    rarity: row.rarity,
+    conditions: row.conditions || [],
+    verified: row.verified,
+  };
+}
+
+db.from('locations').select('*')
+  .then(({ data, error }) => {
+    if (error) throw error;
+    locations = data.map(rowToLocation);
     renderMarkers();
     renderFilters();
     updateProgress();
@@ -543,18 +568,16 @@ fetch('locations.json')
     if (initialId) goToLocationById(initialId);
   })
   .catch(err => {
-    console.error('Не удалось загрузить locations.json:', err);
+    console.error('Не удалось загрузить точки из Supabase:', err);
     alert('Не удалось загрузить список точек.');
   });
 
 /* ---------------------------------------------------------
    13. РЕЖИМ КАРТОГРАФА (АДМИНКА)
-   Доступ защищён настоящим логином через Netlify Identity (проверка
-   идёт на стороне Netlify, а не в браузере — в отличие от пароля,
-   зашитого в JS, это нельзя обойти через "Просмотр кода страницы").
-   Ctrl+Shift+A: если вы уже вошли — сразу переключает режим; если
-   нет — открывает окно входа, и режим включится сам после успешного
-   логина.
+   Простой код доступа через prompt() — НЕ настоящая защита (код виден
+   в исходнике JS любому, кто откроет "Просмотр кода страницы"), но
+   отсекает случайных людей, которые наткнутся на Ctrl+Shift+A и просто
+   из любопытства попробуют его нажать. Смените ADMIN_PASSCODE на свой.
 --------------------------------------------------------- */
 let isAdminMode = false;
 let tempAdminMarker = null;
@@ -563,8 +586,7 @@ const adminPanel = document.getElementById('adminPanel');
 const admGoX = document.getElementById('admGoX');
 const admGoY = document.getElementById('admGoY');
 
-// netlifyIdentity.init() уже вызван отдельным инлайн-скриптом в index.html —
-// см. комментарий там, почему это вынесено из app.js.
+const ADMIN_PASSCODE = '&yEV3XfVZM_Rw4kH'; // сгенерированный код — смените, если хотите свой
 
 function toggleAdminMode() {
   isAdminMode = !isAdminMode;
@@ -576,31 +598,20 @@ function toggleAdminMode() {
 window.addEventListener('keydown', (e) => {
   if (!(e.ctrlKey && e.shiftKey && e.code === 'KeyA')) return;
 
-  const user = window.netlifyIdentity && netlifyIdentity.currentUser();
-  if (user) {
+  // Выключить можно без повторного ввода кода — спрашиваем код только на вход
+  if (isAdminMode) {
     toggleAdminMode();
     return;
   }
 
-  if (window.netlifyIdentity) {
-    netlifyIdentity.open('login');
+  const entered = prompt('Код доступа картографа:');
+  if (entered === null) return; // нажали "Отмена" — молча ничего не делаем
+  if (entered === ADMIN_PASSCODE) {
+    toggleAdminMode();
   } else {
-    alert('Netlify Identity не загрузился — проверьте подключение к интернету и обновите страницу.');
+    alert('Неверный код.');
   }
 });
-
-if (window.netlifyIdentity) {
-  // После успешного входа сразу включаем режим и закрываем окно логина —
-  // не нужно повторно жать Ctrl+Shift+A.
-  netlifyIdentity.on('login', () => {
-    netlifyIdentity.close();
-    if (!isAdminMode) toggleAdminMode();
-  });
-  // При выходе — на всякий случай выключаем режим, если он был включён.
-  netlifyIdentity.on('logout', () => {
-    if (isAdminMode) toggleAdminMode();
-  });
-}
 
 // Общий редактор точки: строит попап-форму (название/категория/редкость/
 // условия/картинки/статус) в указанных координатах. Используется и при

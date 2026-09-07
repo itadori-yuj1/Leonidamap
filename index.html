@@ -219,18 +219,9 @@
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Netlify Identity — настоящий логин для режима картографа (Ctrl+Shift+A),
-       без него любой посетитель мог включить админку, просто зная комбинацию клавиш. -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script>
-    // init() вызывается здесь отдельно от app.js специально: если что-то
-    // в основном скрипте споткнётся об ошибку, окно "Задать пароль" по
-    // ссылке-приглашению (#invite_token=...) всё равно должно открыться —
-    // это не должно зависеть от успешного выполнения всего остального кода.
-    if (window.netlifyIdentity) {
-      netlifyIdentity.init();
-    }
-  </script>
+  <!-- Supabase JS — клиент для базы данных, где теперь хранятся точки
+       (вместо статичного locations.json) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
