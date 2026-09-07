@@ -574,10 +574,10 @@ db.from('locations').select('*')
 
 /* ---------------------------------------------------------
    13. РЕЖИМ КАРТОГРАФА (АДМИНКА)
-   Простой код доступа через prompt() — НЕ настоящая защита (код виден
-   в исходнике JS любому, кто откроет "Просмотр кода страницы"), но
-   отсекает случайных людей, которые наткнутся на Ctrl+Shift+A и просто
-   из любопытства попробуют его нажать. Смените ADMIN_PASSCODE на свой.
+   Вход через Supabase Auth (email + пароль) — проверка идёт на сервере
+   Supabase, а не в браузере, поэтому это настоящая защита (в отличие
+   от кода-строки, зашитого в JS). Supabase сам запоминает сессию, так
+   что повторно вводить пароль на каждой перезагрузке страницы не нужно.
 --------------------------------------------------------- */
 let isAdminMode = false;
 let tempAdminMarker = null;
@@ -586,8 +586,6 @@ const adminPanel = document.getElementById('adminPanel');
 const admGoX = document.getElementById('admGoX');
 const admGoY = document.getElementById('admGoY');
 
-const ADMIN_PASSCODE = '&yEV3XfVZM_Rw4kH'; // сгенерированный код — смените, если хотите свой
-
 function toggleAdminMode() {
   isAdminMode = !isAdminMode;
   // Панель показывается/прячется классом is-open — так же, как в CSS
@@ -595,23 +593,62 @@ function toggleAdminMode() {
   adminPanel.classList.toggle('is-open', isAdminMode);
 }
 
-window.addEventListener('keydown', (e) => {
-  if (!(e.ctrlKey && e.shiftKey && e.code === 'KeyA')) return;
-
-  // Выключить можно без повторного ввода кода — спрашиваем код только на вход
+// Общая точка входа в режим картографа — вызывается и по Ctrl+Shift+A
+// (десктоп), и по 5 быстрым тапам на логотип (мобильные, где физически
+// нет клавиш Ctrl/Shift).
+function attemptAdminAccess() {
+  // Выключить можно без повторного входа
   if (isAdminMode) {
     toggleAdminMode();
     return;
   }
 
-  const entered = prompt('Код доступа картографа:');
-  if (entered === null) return; // нажали "Отмена" — молча ничего не делаем
-  if (entered === ADMIN_PASSCODE) {
-    toggleAdminMode();
-  } else {
-    alert('Неверный код.');
-  }
+  // Если сессия уже есть (входили раньше в этом браузере) — не спрашиваем
+  // логин заново, Supabase сам её помнит между перезагрузками страницы.
+  db.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      toggleAdminMode();
+      return;
+    }
+
+    const email = prompt('Email картографа:');
+    if (email === null) return; // нажали "Отмена"
+
+    const password = prompt('Пароль:');
+    if (password === null) return;
+
+    db.auth.signInWithPassword({ email, password }).then(({ error }) => {
+      if (error) {
+        alert('Не удалось войти: ' + error.message);
+        return;
+      }
+      toggleAdminMode();
+    });
+  });
+}
+
+// Триггер для десктопа — Ctrl+Shift+A
+window.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') attemptAdminAccess();
 });
+
+// Триггер для мобильных — 5 быстрых тапов по логотипу подряд (в течение
+// 3 секунд). На телефоне физически нет клавиш Ctrl/Shift, поэтому без
+// этого войти в режим картографа с мобильного было бы невозможно.
+let logoTapCount = 0;
+let logoTapTimer = null;
+const brandTitleEl = document.querySelector('.brand-title');
+if (brandTitleEl) {
+  brandTitleEl.addEventListener('click', () => {
+    logoTapCount += 1;
+    clearTimeout(logoTapTimer);
+    logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 3000);
+    if (logoTapCount >= 5) {
+      logoTapCount = 0;
+      attemptAdminAccess();
+    }
+  });
+}
 
 // Общий редактор точки: строит попап-форму (название/категория/редкость/
 // условия/картинки/статус) в указанных координатах. Используется и при
