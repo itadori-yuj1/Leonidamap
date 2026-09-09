@@ -193,14 +193,21 @@ function buildPopupHtml(location) {
     </div>`;
 }
 
+// Создаёт и добавляет на карту ОДИН маркер для точки. Вынесено отдельно
+// от renderMarkers(), чтобы можно было добавить единственную новую точку
+// (после сохранения в базу через режим картографа) без пересоздания всех
+// остальных маркеров — иначе получились бы задвоенные маркеры и задвоенные
+// строки фильтров при повторном вызове renderMarkers()/renderFilters().
+function addMarkerForLocation(loc) {
+  const marker = L.marker(pointToLatLng(loc.x, loc.y), { icon: createIcon(loc) });
+  marker.bindPopup(buildPopupHtml(loc), { className: 'leo-popup', closeButton: true });
+  marker.addTo(layerGroups[loc.category]);
+  marker._leoId = loc.id; // для deep-link (#loc-002) и обновления хэша при открытии попапа
+  markerIndex[loc.id] = { marker, data: loc };
+}
+
 function renderMarkers() {
-  locations.forEach(loc => {
-    const marker = L.marker(pointToLatLng(loc.x, loc.y), { icon: createIcon(loc) });
-    marker.bindPopup(buildPopupHtml(loc), { className: 'leo-popup', closeButton: true });
-    marker.addTo(layerGroups[loc.category]);
-    marker._leoId = loc.id; // для deep-link (#loc-002) и обновления хэша при открытии попапа
-    markerIndex[loc.id] = { marker, data: loc };
-  });
+  locations.forEach(addMarkerForLocation);
 }
 
 // Leaflet divIcon оборачивает переданный html в свой собственный контейнер
@@ -705,38 +712,82 @@ function openAdminEditor(x, y, latlng) {
           <input type="checkbox" id="admVerified" checked> Проверено (сразу видно всем на карте)
         </label>
 
-        <button id="admCopyBtn" class="leo-popup-btn" style="background:#00f0ff; color:#0f0f13;">
-          📋 Скопировать JSON
-        </button>
+        <div style="display:flex; gap:6px;">
+          <button id="admSaveBtn" class="leo-popup-btn" style="flex:1; background:#00f0ff; color:#0f0f13;">
+            💾 Сохранить в базу
+          </button>
+          <button id="admCopyBtn" class="leo-popup-btn" style="flex:1; background:transparent; border:1px solid #00f0ff; color:#00f0ff;">
+            📋 JSON
+          </button>
+        </div>
       </div>
     </div>
   `;
 
   tempAdminMarker.bindPopup(popupHtml, { className: 'leo-popup' }).openPopup();
 
+  // Читает значения полей формы — общее для обеих кнопок (сохранить в базу
+  // и скопировать JSON), чтобы не дублировать одно и то же дважды.
+  function collectAdminFormValues() {
+    const name = document.getElementById('admName').value || 'Без названия';
+    const category = document.getElementById('admCat').value;
+    const rarity = document.getElementById('admRarity').value;
+    const description = document.getElementById('admDesc').value || '';
+    const verified = document.getElementById('admVerified').checked;
+
+    const imgVal = document.getElementById('admImg').value.trim();
+    const images = imgVal
+      ? imgVal.split(',').map(s => s.trim()).filter(Boolean).map(s => `img/${s}`)
+      : [];
+
+    const conditions = Array.from(document.querySelectorAll('.admCondition:checked')).map(cb => cb.value);
+
+    return { name, category, rarity, description, verified, images, conditions };
+  }
+
   setTimeout(() => {
+    const saveBtn = document.getElementById('admSaveBtn');
+    if (saveBtn) {
+      saveBtn.onclick = () => {
+        const values = collectAdminFormValues();
+        const id = 'loc-' + String(Date.now()).slice(-4);
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняю…';
+
+        db.from('locations').insert([{ loc_id: id, x, y, ...values }]).then(({ error }) => {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '💾 Сохранить в базу';
+
+          if (error) {
+            alert('Не удалось сохранить в базу: ' + error.message);
+            return;
+          }
+
+          // Точка сразу появляется на карте — без перезагрузки страницы
+          const newLocation = rowToLocation({ loc_id: id, x, y, ...values });
+          locations.push(newLocation);
+          addMarkerForLocation(newLocation);
+          updateFilterCounts();
+          updateProgress();
+
+          alert('Точка сохранена и уже видна на карте!');
+          map.removeLayer(tempAdminMarker);
+          tempAdminMarker = null;
+        });
+      };
+    }
+
     const copyBtn = document.getElementById('admCopyBtn');
     if (copyBtn) {
       copyBtn.onclick = () => {
-        const name = document.getElementById('admName').value || 'Без названия';
-        const category = document.getElementById('admCat').value;
-        const rarity = document.getElementById('admRarity').value;
-        const description = document.getElementById('admDesc').value || '';
-        const verified = document.getElementById('admVerified').checked;
-
-        const imgVal = document.getElementById('admImg').value.trim();
-        const images = imgVal
-          ? imgVal.split(',').map(s => s.trim()).filter(Boolean).map(s => `img/${s}`)
-          : [];
-
-        const conditions = Array.from(document.querySelectorAll('.admCondition:checked')).map(cb => cb.value);
-
+        const values = collectAdminFormValues();
         const id = 'loc-' + String(Date.now()).slice(-4);
-        const jsonObject = { id, name, category, x, y, description, images, rarity, conditions, verified };
+        const jsonObject = { id, x, y, ...values };
         const jsonString = JSON.stringify(jsonObject, null, 2);
 
         navigator.clipboard.writeText(jsonString).then(() => {
-          alert('JSON скопирован в буфер обмена!\nВставь его в массив locations.json');
+          alert('JSON скопирован в буфер обмена!');
         }).catch(() => {
           alert('Не удалось скопировать автоматически — открой консоль и скопируй JSON вручную.');
           console.log(jsonString);
