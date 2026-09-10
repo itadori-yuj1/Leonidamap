@@ -677,9 +677,9 @@ function openAdminEditor(x, y, latlng) {
   `).join('');
 
   const popupHtml = `
-    <div class="leo-popup-inner" style="--pop-color: #00f0ff; width: 270px;">
+    <div class="leo-popup-inner" style="--pop-color: #00f0ff;">
       <div class="leo-popup-band"></div>
-      <div class="leo-popup-body">
+      <div class="leo-popup-body" style="max-height: 70vh; overflow-y: auto;">
         <div class="leo-popup-category">НОВАЯ ТОЧКА [X: ${x}, Y: ${y}]</div>
 
         <input id="admName" type="text" placeholder="Название объекта"
@@ -724,7 +724,7 @@ function openAdminEditor(x, y, latlng) {
     </div>
   `;
 
-  tempAdminMarker.bindPopup(popupHtml, { className: 'leo-popup' }).openPopup();
+  tempAdminMarker.bindPopup(popupHtml, { className: 'leo-popup admin-popup' }).openPopup();
 
   // Читает значения полей формы — общее для обеих кнопок (сохранить в базу
   // и скопировать JSON), чтобы не дублировать одно и то же дважды.
@@ -747,8 +747,18 @@ function openAdminEditor(x, y, latlng) {
 
   setTimeout(() => {
     const saveBtn = document.getElementById('admSaveBtn');
-    if (saveBtn) {
-      saveBtn.onclick = () => {
+    const copyBtn = document.getElementById('admCopyBtn');
+
+    // Если кнопки вообще не нашлись в DOM — сообщаем явно вместо тишины.
+    // Это может значить, что попап ещё не успел отрисоваться за 100мс.
+    if (!saveBtn || !copyBtn) {
+      console.error('Кнопки формы картографа не найдены в DOM:', { saveBtn, copyBtn });
+      alert('Не удалось найти кнопки формы — попробуйте кликнуть по карте ещё раз.');
+      return;
+    }
+
+    saveBtn.onclick = () => {
+      try {
         const values = collectAdminFormValues();
         const id = 'loc-' + String(Date.now()).slice(-4);
 
@@ -774,13 +784,19 @@ function openAdminEditor(x, y, latlng) {
           alert('Точка сохранена и уже видна на карте!');
           map.removeLayer(tempAdminMarker);
           tempAdminMarker = null;
+        }).catch(err => {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '💾 Сохранить в базу';
+          alert('Ошибка при обращении к базе: ' + err.message);
         });
-      };
-    }
+      } catch (err) {
+        alert('Ошибка в форме (сохранить): ' + err.message);
+        console.error(err);
+      }
+    };
 
-    const copyBtn = document.getElementById('admCopyBtn');
-    if (copyBtn) {
-      copyBtn.onclick = () => {
+    copyBtn.onclick = () => {
+      try {
         const values = collectAdminFormValues();
         const id = 'loc-' + String(Date.now()).slice(-4);
         const jsonObject = { id, x, y, ...values };
@@ -792,8 +808,11 @@ function openAdminEditor(x, y, latlng) {
           alert('Не удалось скопировать автоматически — открой консоль и скопируй JSON вручную.');
           console.log(jsonString);
         });
-      };
-    }
+      } catch (err) {
+        alert('Ошибка в форме (JSON): ' + err.message);
+        console.error(err);
+      }
+    };
   }, 100);
 }
 
