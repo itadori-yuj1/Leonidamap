@@ -720,6 +720,8 @@ function openAdminEditor(x, y, latlng) {
             📋 JSON
           </button>
         </div>
+
+        <p id="admStatus" style="margin:8px 0 0; font-size:12px; font-weight:700; min-height:16px;"></p>
       </div>
     </div>
   `;
@@ -748,12 +750,23 @@ function openAdminEditor(x, y, latlng) {
   setTimeout(() => {
     const saveBtn = document.getElementById('admSaveBtn');
     const copyBtn = document.getElementById('admCopyBtn');
+    const statusEl = document.getElementById('admStatus');
+
+    // Статус выводится текстом прямо в форме, а не через alert() — мобильные
+    // браузеры после нескольких подряд идущих alert() иногда молча
+    // блокируют вообще все следующие диалоги на странице (галочка
+    // "больше не показывать"), и тогда даже сообщения об ошибках
+    // становятся не видны. Текст в форме такому не подвержен.
+    function setStatus(text, color) {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.style.color = color || '#fff';
+    }
 
     // Если кнопки вообще не нашлись в DOM — сообщаем явно вместо тишины.
     // Это может значить, что попап ещё не успел отрисоваться за 100мс.
     if (!saveBtn || !copyBtn) {
       console.error('Кнопки формы картографа не найдены в DOM:', { saveBtn, copyBtn });
-      alert('Не удалось найти кнопки формы — попробуйте кликнуть по карте ещё раз.');
       return;
     }
 
@@ -764,13 +777,14 @@ function openAdminEditor(x, y, latlng) {
 
         saveBtn.disabled = true;
         saveBtn.textContent = 'Сохраняю…';
+        setStatus('Отправляю в базу…', '#00f0ff');
 
         db.from('locations').insert([{ loc_id: id, x, y, ...values }]).then(({ error }) => {
           saveBtn.disabled = false;
           saveBtn.textContent = '💾 Сохранить в базу';
 
           if (error) {
-            alert('Не удалось сохранить в базу: ' + error.message);
+            setStatus('❌ Ошибка: ' + error.message, '#ff007f');
             return;
           }
 
@@ -781,16 +795,16 @@ function openAdminEditor(x, y, latlng) {
           updateFilterCounts();
           updateProgress();
 
-          alert('Точка сохранена и уже видна на карте!');
+          setStatus('✔ Сохранено и добавлено на карту!', '#00f0ff');
           map.removeLayer(tempAdminMarker);
           tempAdminMarker = null;
         }).catch(err => {
           saveBtn.disabled = false;
           saveBtn.textContent = '💾 Сохранить в базу';
-          alert('Ошибка при обращении к базе: ' + err.message);
+          setStatus('❌ Ошибка сети: ' + err.message, '#ff007f');
         });
       } catch (err) {
-        alert('Ошибка в форме (сохранить): ' + err.message);
+        setStatus('❌ Ошибка в форме: ' + err.message, '#ff007f');
         console.error(err);
       }
     };
@@ -803,13 +817,13 @@ function openAdminEditor(x, y, latlng) {
         const jsonString = JSON.stringify(jsonObject, null, 2);
 
         navigator.clipboard.writeText(jsonString).then(() => {
-          alert('JSON скопирован в буфер обмена!');
+          setStatus('✔ JSON скопирован в буфер обмена', '#00f0ff');
         }).catch(() => {
-          alert('Не удалось скопировать автоматически — открой консоль и скопируй JSON вручную.');
+          setStatus('❌ Не удалось скопировать — см. консоль', '#ff007f');
           console.log(jsonString);
         });
       } catch (err) {
-        alert('Ошибка в форме (JSON): ' + err.message);
+        setStatus('❌ Ошибка в форме: ' + err.message, '#ff007f');
         console.error(err);
       }
     };
