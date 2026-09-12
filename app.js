@@ -1,5 +1,5 @@
 /* =========================================================
-   LEONIDA MAP — app.js
+   THE VICE MAP — app.js
    ========================================================= */
 
 /* ---------------------------------------------------------
@@ -247,7 +247,7 @@ function shareLocation(id, btnEl) {
   if (!entry) return;
 
   const url = `${location.origin}${location.pathname}#${id}`;
-  const title = `LEONIDA MAP — ${entry.data.name}`;
+  const title = `THE VICE MAP — ${entry.data.name}`;
 
   if (navigator.share) {
     navigator.share({ title, url }).catch(() => {

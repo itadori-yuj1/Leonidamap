@@ -1,5 +1,5 @@
 /* =========================================================
-   LEONIDA MAP — style.css
+   THE VICE MAP — style.css
    ========================================================= */
 
 :root {
@@ -460,6 +460,12 @@ input:focus-visible,
 }
 
 .leaflet-popup.leo-popup .leaflet-popup-content { margin: 0; width: 250px !important; }
+
+/* Админ-попап (форма картографа) шире обычных — своя ширина, чтобы не
+   зависеть от общего правила выше и не обрезаться overflow:hidden у
+   .leaflet-popup-content-wrapper */
+.leaflet-popup.admin-popup .leaflet-popup-content { width: 280px !important; }
+
 .leaflet-popup.leo-popup .leaflet-popup-tip { background: var(--pop-color, var(--pink)); }
 .leaflet-popup.leo-popup .leaflet-popup-close-button {
   color: #fff !important;
@@ -878,5 +884,6 @@ input:focus-visible,
   .sidebar.is-open { transform: translateX(0); }
   #map { left: 0; }
   .leaflet-popup.leo-popup .leaflet-popup-content { width: 220px !important; }
+  .leaflet-popup.admin-popup .leaflet-popup-content { width: 250px !important; }
   .modal-card { width: min(92vw, 420px); padding: 20px; }
 }
