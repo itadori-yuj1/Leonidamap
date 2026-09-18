@@ -232,6 +232,18 @@ input:focus-visible,
   font-size: 15px;
   font-weight: 600;
   color: var(--text-hi);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* SVG-иконка категории теперь используется и тут (не только на маркерах) —
+   без явного размера браузер отрисует её в дефолтные 300×150px */
+.filter-name svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: white; /* некоторые иконки используют currentColor вместо явного fill */
 }
 
 .filter-count {
@@ -404,6 +416,43 @@ input:focus-visible,
   border: 2px solid rgba(255,255,255,0.85);
   box-shadow: 0 0 10px var(--m-color, var(--pink)), 0 0 2px rgba(0,0,0,0.6);
   transition: transform 0.15s ease, opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* нужно для позиционирования хвостика-указателя ниже */
+}
+
+/* Треугольный хвостик снизу — превращает кружок в форму метки-«капли»,
+   как на большинстве игровых карт (GTA5-map и подобные). Сделан через
+   ::after, а не через поворот всего элемента — так все существующие
+   эффекты (hover, пульсация при ссылке, свечение редкости, fade-out)
+   продолжают работать без единой правки, они не знают о хвостике вообще. */
+.leo-marker::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid var(--m-color, var(--pink));
+  transform: translateX(-50%);
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));
+}
+
+/* SVG-иконка категории внутри кружка маркера */
+.leo-marker-icon {
+  display: flex;
+  /* лёгкая тень для контраста на светлых цветах маркера (жёлтый/циан) */
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.6));
+}
+
+.leo-marker-icon svg {
+  width: 10px;
+  height: 10px;
+  display: block;
+  color: white; /* некоторые иконки используют currentColor вместо явного fill */
 }
 
 .leo-marker:hover { transform: scale(1.25); }
@@ -433,11 +482,19 @@ input:focus-visible,
   width: 20px; height: 20px;
   box-shadow: 0 0 14px var(--m-color, var(--pink)), 0 0 3px rgba(0,0,0,0.6);
 }
+.leo-marker.rarity-rare .leo-marker-icon svg { width: 12px; height: 12px; }
+.leo-marker.rarity-rare::after {
+  border-left-width: 6px; border-right-width: 6px; border-top-width: 8px;
+}
 
 .leo-marker.rarity-unique {
   width: 24px; height: 24px;
   border-width: 3px;
   box-shadow: 0 0 20px var(--m-color, var(--pink)), 0 0 40px var(--m-color, var(--pink)), 0 0 4px rgba(0,0,0,0.6);
+}
+.leo-marker.rarity-unique .leo-marker-icon svg { width: 14px; height: 14px; }
+.leo-marker.rarity-unique::after {
+  border-left-width: 7px; border-right-width: 7px; border-top-width: 9px;
 }
 
 /* Точки, ожидающие проверки модератором — видны только при включённом тогле,
@@ -543,11 +600,41 @@ input:focus-visible,
   margin-bottom: 10px;
 }
 
+.leo-popup-approve-btn {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  background: transparent;
+  border: 1px solid #ffd400;
+  color: #ffd400;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.leo-popup-approve-btn:hover:not(:disabled) { background: #ffd400; color: var(--bg-base); }
+.leo-popup-approve-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
 .leo-popup-category {
   font-size: 11px;
   font-weight: 700;
   color: var(--pop-color, var(--pink));
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Без явного размера SVG-иконка рендерится в дефолтные 300×150px */
+.leo-popup-category svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--pop-color, var(--pink)); /* для иконок на currentColor (транспорт, активности) */
 }
 
 .leo-popup-title {
@@ -770,6 +857,30 @@ input:focus-visible,
 .pick-btn:hover { border-color: var(--pink); color: var(--pink); }
 .pick-btn.is-picking { border-color: var(--pink); color: var(--pink); border-style: solid; }
 
+/* Файловый инпут — приводим к тому же виду, что остальные поля формы */
+input[type="file"].form-input {
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--text-mid);
+}
+
+.photo-preview {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--cyan);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.photo-preview img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+
 .form-actions { margin-top: 18px; }
 
 .submit-btn {
@@ -887,3 +998,74 @@ input:focus-visible,
   .leaflet-popup.admin-popup .leaflet-popup-content { width: 250px !important; }
   .modal-card { width: min(92vw, 420px); padding: 20px; }
 }
+
+/* =========================================================
+   ТЕКСТОВЫЕ СТРАНИЦЫ (About, Privacy Policy) — отдельные
+   лёгкие HTML-страницы без Leaflet/Supabase, только этот CSS.
+   ========================================================= */
+
+.static-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.static-page .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cyan);
+  text-decoration: none;
+  margin-bottom: 32px;
+}
+
+.static-page .back-link:hover { text-decoration: underline; }
+
+.static-page .page-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: var(--text-hi);
+}
+
+.static-page .page-updated {
+  font-size: 13px;
+  color: var(--text-low);
+  margin: 0 0 36px;
+}
+
+.static-page h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--cyan);
+  margin: 36px 0 12px;
+}
+
+.static-page p,
+.static-page li {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-mid);
+  margin: 0 0 14px;
+}
+
+.static-page ul { padding-left: 20px; margin: 0 0 14px; }
+.static-page li { margin-bottom: 8px; }
+
+.static-page strong { color: var(--text-hi); }
+
+.static-page a { color: var(--pink); }
+
+.static-page .disclaimer-box {
+  background: var(--bg-panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin: 24px 0;
+}
+
+.static-page .disclaimer-box p:last-child { margin-bottom: 0; }

@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+<!-- Sentry — автоматический перехват JS-ошибок у реальных посетителей.
+     Подключается первым, до остального кода, чтобы ловить максимум ошибок,
+     включая те, что могли бы произойти при загрузке остальных скриптов. -->
+<script
+  src="https://js-de.sentry-cdn.com/dda08679cbfde1e1d49a23017fe3755c.min.js"
+  crossorigin="anonymous"
+></script>
+
 <!-- ============ SEO: базовые теги ============
      ⚠️ Перед деплоем замените:
      - og-image.png на настоящий скриншот карты 1200×630px
@@ -129,6 +137,10 @@
       <span>
         Неофициальный фан-проект. Не связан с Rockstar Games,
         Take-Two Interactive и не одобрен ими.
+        <br>
+        <a href="about.html" style="color: var(--text-low); text-decoration: underline;">О проекте</a>
+        ·
+        <a href="privacy.html" style="color: var(--text-low); text-decoration: underline;">Конфиденциальность</a>
       </span>
     </footer>
   </aside>
@@ -151,10 +163,9 @@
   <main id="map"></main>
 
   <!-- ============ МОДАЛКА: ПРЕДЛОЖИТЬ НАХОДКУ ============
-       Форма отправляется через Netlify Forms (data-netlify="true") —
-       никакого бэкенда не нужно, заявки падают в панель Netlify → Forms.
-       Если хостинг не Netlify — этот блок нужно переделать под другой
-       сервис приёма форм (Formspree и т.п.). -->
+       Форма пишет напрямую в таблицу locations в Supabase (verified: false) —
+       заявки сразу попадают в общую очередь модерации, ту же самую, что
+       использует режим картографа (тогл "Показывать неподтверждённые"). -->
   <div id="suggestOverlay" class="modal-overlay"></div>
 
   <div id="suggestModal" class="modal-card" role="dialog" aria-modal="true" aria-labelledby="suggestTitle">
@@ -163,17 +174,10 @@
     <h2 id="suggestTitle" class="modal-title">Предложить находку</h2>
     <p class="modal-subtitle">Нашли что-то на карте Leonida? Опишите — после проверки добавим точку на карту.</p>
 
-    <form
-      id="suggestForm"
-      name="location-suggestions"
-      method="POST"
-      data-netlify="true"
-      netlify-honeypot="bot-field"
-    >
-      <input type="hidden" name="form-name" value="location-suggestions">
-
+    <form id="suggestForm">
       <!-- Honeypot-поле для защиты от спам-ботов: обычные пользователи
-           его не видят и не заполняют, боты — как правило, заполняют всё. -->
+           его не видят и не заполняют, боты — как правило, заполняют всё.
+           Проверка идёт в app.js (собственная, без Netlify Forms). -->
       <p class="hp-field" aria-hidden="true">
         <label>Оставьте пустым: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
       </p>
@@ -183,17 +187,21 @@
 
       <label class="form-label" for="sCategory">Категория</label>
       <select id="sCategory" name="category" class="form-input" required>
-        <option value="weapons">Оружие</option>
-        <option value="vehicles">Транспорт</option>
-        <option value="events">Случайные события</option>
-        <option value="eastereggs">Пасхалки</option>
-        <option value="underwater">Подводный мир</option>
-        <option value="activities">Активности</option>
+        <option value="weapons">🔫 Оружие</option>
+        <option value="vehicles">🚗 Транспорт</option>
+        <option value="events">⚡ Случайные события</option>
+        <option value="eastereggs">🥚 Пасхалки</option>
+        <option value="underwater">🤿 Подводный мир</option>
+        <option value="activities">🎯 Активности</option>
       </select>
 
       <label class="form-label" for="sDescription">Описание</label>
       <textarea id="sDescription" name="description" class="form-input" rows="3" required
         placeholder="Где находится, как добраться, особенности..."></textarea>
+
+      <label class="form-label" for="sPhoto">Фото находки (необязательно, но сильно ускоряет проверку)</label>
+      <input id="sPhoto" name="photo" class="form-input" type="file" accept="image/*" capture="environment">
+      <p id="sPhotoPreview" class="photo-preview" hidden></p>
 
       <label class="form-label" for="sRarity">Насколько редкая находка? (необязательно)</label>
       <select id="sRarity" name="rarity" class="form-input">

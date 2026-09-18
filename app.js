@@ -6,12 +6,12 @@
    1. КОНФИГ КАТЕГОРИЙ, РЕДКОСТИ И ТЭГОВ УСЛОВИЙ
 --------------------------------------------------------- */
 const CATEGORIES = {
-  weapons:    { label: 'Оружие',            color: '#ff007f' },
-  vehicles:   { label: 'Транспорт',         color: '#00f0ff' },
-  events:     { label: 'Случайные события', color: '#ffd400' },
-  eastereggs: { label: 'Пасхалки',          color: '#a259ff' },
-  underwater: { label: 'Подводный мир',     color: '#00b4d8' },
-  activities: { label: 'Активности',        color: '#8bc34a' },
+  weapons:    { label: 'Оружие',            color: '#ff007f', icon: '<svg viewBox="0 0 512 512"><path d="M55.505 435.172h91.88v-16.518h-91.88zm265.317-173.437v-49.326l16.518-.795v66.639H218.618c2.158-5.162 4.316-11.356 6.442-16.518zM466.385 76.828l14.949 9.405h-14.949zm-387.136.114h15.486v9.291H79.249zm179.982 138.45c.207 9.374 2.468 21.442 10.592 32.458-9.952-2.065-22.712-14.03-30.61-22.444 1.353-3.407 2.602-6.504 3.697-9.219zm-134.558-63.088v-49.553h16.518v49.553zm66.071 0v-49.553h16.518v49.553zm-120.786 0v-49.553h38.198v49.553zm87.75 0v-49.553h16.519v49.553zM96.49 217.488c.413-12.389-14.608-33.335-30.899-33.335-20.977 0-11.593-8.104-1.331-15.33H486V187.9l-254.312 12.285c-4.976 11.625-22.712 56.976-36.39 92.149l4.779 10.324-9.477 1.858c-3.49 9.033-11.5 29.69-14.856 38.414l3.645 9.797-8.26 2.953c-12.388 32.313-17.55 46.456-17.55 46.456H53.44S26 393.216 26 385.216c-.124-43.99 69.292-131.74 70.49-167.728zM223.78 102.75H486v49.553H223.78z" fill="white"/></svg>' },
+  vehicles:   { label: 'Транспорт',         color: '#00f0ff', icon: '<svg viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M469.71 234.6c-7.33-9.73-34.56-16.43-46.08-33.94s-20.95-55.43-50.27-70S288 112 256 112s-88 4-117.36 18.63s-38.75 52.52-50.27 70s-38.75 24.24-46.08 33.97S29.8 305.84 32.94 336s9 48 9 48h86c14.08 0 18.66-5.29 47.46-8c31.6-3 62.6-4 80.6-4s50 1 81.58 4c28.8 2.73 33.53 8 47.46 8h85s5.86-17.84 9-48s-2.04-91.67-9.33-101.4M400 384h56v16h-56zm-344 0h56v16H56z"/><path fill="currentColor" d="M364.47 309.16c-5.91-6.83-25.17-12.53-50.67-16.35S279 288 256.2 288s-33.17 1.64-57.61 4.81s-42.79 8.81-50.66 16.35C136.12 320.6 153.42 333.44 167 335c13.16 1.5 39.47.95 89.31.95s76.15.55 89.31-.95c13.56-1.65 29.62-13.6 18.85-25.84m67.1-66.11a3.23 3.23 0 0 0-3.1-3c-11.81-.42-23.8.42-45.07 6.69a93.9 93.9 0 0 0-30.08 15.06c-2.28 1.78-1.47 6.59 1.39 7.1a455 455 0 0 0 52.82 3.1c10.59 0 21.52-3 23.55-12.44a52.4 52.4 0 0 0 .49-16.51m-351.14 0a3.23 3.23 0 0 1 3.1-3c11.81-.42 23.8.42 45.07 6.69a93.9 93.9 0 0 1 30.08 15.06c2.28 1.78 1.47 6.59-1.39 7.1a455 455 0 0 1-52.82 3.1c-10.59 0-21.52-3-23.55-12.44a52.4 52.4 0 0 1-.49-16.51"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M432 192h16m-384 0h16m-2 19s46.35-12 178-12s178 12 178 12"/></svg>' },
+  events:     { label: 'Случайные события', color: '#ffd400', icon: '<svg viewBox="0 0 24 24"><polygon points="13,2 5,14 11,14 9,22 19,10 13,10" fill="white"/></svg>' },
+  eastereggs: { label: 'Пасхалки',          color: '#a259ff', icon: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="13" rx="6" ry="8" fill="white"/></svg>' },
+  underwater: { label: 'Подводный мир',     color: '#00b4d8', icon: '<svg viewBox="0 0 512 512"><g transform="translate(12.521728515625,-75.82608032226562)"><path d="M245 29v26h22V29h-22zM105 62.563v30.874l14-7V69.564l-14-7zm302 0-14 7v16.874l14 7V62.564zM137 69v18h90V69h-90zm148 0v18h90V69h-90zm-40 4v14h22V73h-22zm114 26.416v20.176c14.247 8.412 24.376 19.263 32.05 31.947 13.556 22.404 19.038 51.316 21.991 82.326 2.953 31.01 3.422 63.895 8.324 94.211 2.322 14.36 5.68 28.27 10.928 41.06 4.237-4.39 9.665-7.622 15.746-9.15-4.048-10.489-6.864-22.163-8.904-34.783-4.598-28.43-5.13-61.05-8.176-93.045-3.047-31.994-8.565-63.586-24.51-89.937-10.598-17.516-26-32.356-47.449-42.805zM128.922 105c-6.642 5.152-12.31 11.225-17.026 18-15.783 22.68-21.907 51.968-25.406 80.758-3.499 28.79-4.261 57.394-7.527 77.955-1.633 10.28-4.005 18.474-6.746 23.185-2.741 4.712-4.482 5.932-8.604 6.11-5.089.219-8.12-.96-10.912-3.225-2.792-2.266-5.358-6.06-7.369-11.437-4.021-10.754-5.363-27.23-4.809-43.99.772-23.314 4.797-46.823 7.2-59.143 3.026-.782 5.619-2.307 7.789-3.879 3.577-2.59 6.449-5.698 8.924-8.719 4.949-6.041 8.32-12.072 8.32-12.072l-15.674-8.85s-2.819 4.933-6.572 9.514c-1.877 2.29-3.984 4.411-5.555 5.549-.605.438-.917.555-1.203.681-.235-.193-.486-.373-.938-.937-1.192-1.491-2.645-4.064-3.832-6.742-2.373-5.356-3.763-10.803-3.763-10.803l-17.463 4.361s1.632 6.654 4.77 13.735c1.568 3.54 3.493 7.268 6.234 10.693a32.14 32.14 0 0 0 1.69 1.934c-2.456 12.196-7.052 37.955-7.917 64.082-.594 17.958.391 36.053 5.94 50.89 2.774 7.419 6.803 14.173 12.886 19.11 6.084 4.936 14.21 7.612 23.028 7.232 10.16-.437 18.631-6.864 23.388-15.04 4.757-8.178 7.17-18.114 8.965-29.415 3.59-22.601 4.258-50.96 7.617-78.607 3.36-27.648 9.525-54.272 22.315-72.649 6.733-9.674 15.051-17.384 26.328-22.318V105h-24.078zM171 105v30.818a104.29 104.29 0 0 1 13-.818c4.354 0 8.708.278 13 .818V105h-26zm144 0v30.818a104.29 104.29 0 0 1 13-.818c4.354 0 8.708.278 13 .818V105h-26zm-131 48c-27.5 0-55 13-55 39v23h110v-23c0-26-27.5-39-55-39zm144 0c-27.5 0-55 13-55 39v23h110v-23c0-26-27.5-39-55-39zm-199 80v30h254v-30H129zm0 48v62h110v-62H129zm144 0v62h110v-62H273zm-144 80v30h254v-30H129zm327 16c-8.39 0-15 6.61-15 15s6.61 15 15 15 15-6.61 15-15-6.61-15-15-15zm-327 32v78h110v-78H129zm144 0v78h110v-78H273z" fill="white"/></g></svg>' },
+  activities: { label: 'Активности',        color: '#8bc34a', icon: '<svg viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M467.51 248.83c-18.4-83.18-45.69-136.24-89.43-149.17A91.5 91.5 0 0 0 352 96c-26.89 0-48.11 16-96 16s-69.15-16-96-16a99 99 0 0 0-27.2 3.66C89 112.59 61.94 165.7 43.33 248.83c-19 84.91-15.56 152 21.58 164.88c26 9 49.25-9.61 71.27-37c25-31.2 55.79-40.8 119.82-40.8s93.62 9.6 118.66 40.8c22 27.41 46.11 45.79 71.42 37.16c41.02-14.01 40.44-79.13 21.43-165.04Z"/><circle cx="292" cy="224" r="20" fill="currentColor"/><path fill="currentColor" d="M336 288a20 20 0 1 1 20-19.95A20 20 0 0 1 336 288"/><circle cx="336" cy="180" r="20" fill="currentColor"/><circle cx="380" cy="224" r="20" fill="currentColor"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M160 176v96m48-48h-96"/></svg>' },
 };
 
 const RARITY = {
@@ -132,7 +132,8 @@ Object.keys(CATEGORIES).forEach(cat => {
 });
 
 function createIcon(location) {
-  const color = CATEGORIES[location.category].color;
+  const cat = CATEGORIES[location.category];
+  const color = cat.color;
   const isFound = foundIds.has(location.id);
   const rarity = location.rarity && RARITY[location.rarity] ? location.rarity : 'common';
   const isUnverified = location.verified === false;
@@ -142,12 +143,24 @@ function createIcon(location) {
   if (rarity !== 'common') classes.push(`rarity-${rarity}`);
   if (isUnverified) classes.push('is-unverified');
 
+  // Маркер теперь в форме метки-«капли» (кружок + хвостик снизу, см. CSS
+  // ::after) — точка карты должна указывать на КОНЧИК хвостика, а не в
+  // центр кружка, как было раньше. Размеры круга и хвостика растут вместе
+  // с редкостью точки (см. .rarity-rare/.rarity-unique в CSS), поэтому и
+  // якорь считаем отдельно под каждый размер.
+  const geometry = {
+    common: { circle: 18, tail: 7 },
+    rare:   { circle: 20, tail: 8 },
+    unique: { circle: 24, tail: 9 },
+  }[rarity];
+  const totalHeight = geometry.circle + geometry.tail;
+
   return L.divIcon({
     className: '',
-    html: `<div class="${classes.join(' ')}" style="--m-color:${color}"></div>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
-    popupAnchor: [0, -10],
+    html: `<div class="${classes.join(' ')}" style="--m-color:${color}"><span class="leo-marker-icon">${cat.icon}</span></div>`,
+    iconSize: [geometry.circle, totalHeight],
+    iconAnchor: [geometry.circle / 2, totalHeight], // низ хвостика = точная координата
+    popupAnchor: [0, -totalHeight - 1], // попап открывается чуть выше кружка
   });
 }
 
@@ -170,7 +183,10 @@ function buildPopupHtml(location) {
     : '';
 
   const unverifiedHtml = location.verified === false
-    ? `<div class="leo-popup-unverified">⏳ Ожидает проверки — координаты могут быть неточными</div>`
+    ? `<div class="leo-popup-unverified">
+         ⏳ Ожидает проверки — координаты могут быть неточными
+         ${isAdminMode ? `<button class="leo-popup-approve-btn" data-loc-id="${location.id}">✔ Одобрить</button>` : ''}
+       </div>`
     : '';
 
   return `
@@ -179,7 +195,7 @@ function buildPopupHtml(location) {
       ${imageHtml}
       <div class="leo-popup-body">
         ${unverifiedHtml}
-        <div class="leo-popup-category">${cat.label.toUpperCase()}${rarityHtml}</div>
+        <div class="leo-popup-category">${cat.icon} ${cat.label.toUpperCase()}${rarityHtml}</div>
         <h3 class="leo-popup-title">${location.name}</h3>
         ${tagsHtml}
         <p class="leo-popup-desc">${location.description}</p>
@@ -236,6 +252,53 @@ function bindPopupButton(popupNode) {
   if (shareBtn) {
     shareBtn.onclick = () => shareLocation(shareBtn.dataset.locId, shareBtn);
   }
+
+  const approveBtn = popupNode.querySelector('.leo-popup-approve-btn');
+  if (approveBtn) {
+    approveBtn.onclick = () => approveLocation(approveBtn.dataset.locId, approveBtn);
+  }
+}
+
+// Меняет verified: false -> true прямо в базе, без пересоздания точки через
+// режим картографа. Кнопка видна только вошедшему админу (см. isAdminMode
+// в buildPopupHtml) — но и на уровне базы это разрешено только роли
+// authenticated (RLS-политика UPDATE), так что случайный посетитель не
+// сможет провернуть это даже через прямой запрос к API.
+function approveLocation(id, btnEl) {
+  const entry = markerIndex[id];
+  if (!entry) return;
+
+  btnEl.disabled = true;
+  btnEl.textContent = 'Одобряю…';
+
+  db.from('locations').update({ verified: true }).eq('loc_id', id)
+    .then(({ error }) => {
+      if (error) {
+        btnEl.disabled = false;
+        btnEl.textContent = '❌ Не вышло, нажмите ещё раз';
+        console.error('Не удалось одобрить точку:', error);
+        return;
+      }
+
+      // Обновляем локальные данные и перерисовываем маркер/попап — баннер
+      // "ожидает проверки" и эта кнопка сами исчезнут, раз buildPopupHtml
+      // не показывает их для verified: true.
+      entry.data.verified = true;
+      entry.marker.setIcon(createIcon(entry.data));
+      entry.marker.setPopupContent(buildPopupHtml(entry.data));
+
+      const popupEl = entry.marker.getPopup() && entry.marker.getPopup().getElement();
+      if (popupEl) bindPopupButton(popupEl);
+
+      updateProgress();
+      updateFilterCounts();
+      applySearchFilter(); // точка была скрыта, если тогл непроверенных был выключен — теперь должна стать видимой
+    })
+    .catch((err) => {
+      btnEl.disabled = false;
+      btnEl.textContent = '❌ Не вышло, нажмите ещё раз';
+      console.error('Ошибка сети при одобрении:', err);
+    });
 }
 
 // Делится прямой ссылкой на находку (map.html#loc-002). На мобильных с
@@ -353,7 +416,7 @@ function renderFilters() {
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
       </span>
-      <span class="filter-name">${cfg.label}</span>
+      <span class="filter-name">${cfg.icon} ${cfg.label}</span>
       <span class="filter-count">${countByCategory(key)}</span>
     `;
     filterListEl.appendChild(label);
@@ -686,12 +749,12 @@ function openAdminEditor(x, y, latlng) {
           style="width:100%; margin:8px 0 6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
 
         <select id="admCat" style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
-          <option value="weapons">Оружие</option>
-          <option value="vehicles">Транспорт</option>
-          <option value="events">Случайные события</option>
-          <option value="eastereggs">Пасхалки</option>
-          <option value="underwater">Подводный мир</option>
-          <option value="activities">Активности</option>
+          <option value="weapons">🔫 Оружие</option>
+          <option value="vehicles">🚗 Транспорт</option>
+          <option value="events">⚡ Случайные события</option>
+          <option value="eastereggs">🥚 Пасхалки</option>
+          <option value="underwater">🤿 Подводный мир</option>
+          <option value="activities">🎯 Активности</option>
         </select>
 
         <select id="admRarity" style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
@@ -864,6 +927,50 @@ const suggestForm = document.getElementById('suggestForm');
 const suggestSubmitBtn = document.getElementById('suggestSubmitBtn');
 const suggestStatus = document.getElementById('suggestStatus');
 const pickLocationBtn = document.getElementById('pickLocationBtn');
+const sPhoto = document.getElementById('sPhoto');
+const sPhotoPreview = document.getElementById('sPhotoPreview');
+
+// Сжимает фото прямо в браузере перед загрузкой — телефонные камеры обычно
+// снимают в 3-10 МБ, а для миниатюры в попапе достаточно намного меньше.
+// Уменьшаем до максимум 1280px по широкой стороне и пережимаем в JPEG.
+function compressImage(file, maxWidth = 1280, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => { img.src = e.target.result; };
+    reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxWidth) {
+        height = Math.round(height * (maxWidth / width));
+        width = maxWidth;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Не удалось сжать изображение'));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => reject(new Error('Файл повреждён или это не изображение'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// Превью выбранного фото прямо в форме — просто уверенность, что выбрали то,
+// что нужно, до отправки.
+sPhoto.addEventListener('change', () => {
+  const file = sPhoto.files[0];
+  if (!file) {
+    sPhotoPreview.hidden = true;
+    return;
+  }
+  const url = URL.createObjectURL(file);
+  sPhotoPreview.innerHTML = `<img src="${url}" alt=""> ${file.name}`;
+  sPhotoPreview.hidden = false;
+});
 
 function openSuggestModal() {
   suggestOverlay.classList.add('is-open');
@@ -900,32 +1007,110 @@ pickLocationBtn.addEventListener('click', () => {
   });
 });
 
-suggestForm.addEventListener('submit', (e) => {
+suggestForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  // Собственная honeypot-проверка (раньше это делал Netlify Forms
+  // автоматически — теперь пишем напрямую в Supabase, значит и спам-фильтр
+  // свой). Боты обычно заполняют все поля подряд, включая скрытые —
+  // обычный человек это поле физически не видит и не трогает.
+  const botField = suggestForm.querySelector('[name="bot-field"]').value;
+  if (botField) {
+    // Бот не должен понять, что его поймали — просто "успешно" закрываем форму
+    suggestStatus.textContent = 'Спасибо! Заявка отправлена на проверку.';
+    suggestStatus.className = 'suggest-status is-success';
+    suggestStatus.hidden = false;
+    suggestForm.reset();
+    setTimeout(closeSuggestModal, 1800);
+    return;
+  }
+
   suggestSubmitBtn.disabled = true;
   suggestStatus.hidden = true;
 
-  const body = new URLSearchParams(new FormData(suggestForm)).toString();
+  const name = document.getElementById('sName').value.trim();
+  const category = document.getElementById('sCategory').value;
+  const description = document.getElementById('sDescription').value.trim();
+  const rarity = document.getElementById('sRarity').value || null; // "" -> null, если не выбрали
+  const x = parseInt(document.getElementById('sX').value, 10);
+  const y = parseInt(document.getElementById('sY').value, 10);
+  const contact = document.getElementById('sContact').value.trim() || null;
+  const photoFile = sPhoto.files[0] || null;
 
-  fetch('/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-  })
-    .then(() => {
+  if (Number.isNaN(x) || Number.isNaN(y)) {
+    suggestSubmitBtn.disabled = false;
+    suggestStatus.textContent = '❌ Сначала укажите точку на карте.';
+    suggestStatus.className = 'suggest-status is-error';
+    suggestStatus.hidden = false;
+    return;
+  }
+
+  const locId = 'loc-' + String(Date.now()).slice(-4);
+  const images = [];
+
+  // Если приложили фото — сжимаем и загружаем в Storage (bucket "submissions")
+  // ДО записи точки, чтобы сразу получить публичную ссылку и вставить её
+  // в images. Если это упадёт — не отправляем заявку молча без фото,
+  // а честно сообщаем и даём попробовать ещё раз.
+  if (photoFile) {
+    suggestStatus.textContent = 'Сжимаю и загружаю фото…';
+    suggestStatus.className = 'suggest-status is-success';
+    suggestStatus.hidden = false;
+
+    try {
+      const compressed = await compressImage(photoFile);
+      const filePath = `${locId}-${Date.now()}.jpg`;
+
+      const { error: uploadError } = await db.storage
+        .from('submissions')
+        .upload(filePath, compressed, { contentType: 'image/jpeg' });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = db.storage.from('submissions').getPublicUrl(filePath);
+      images.push(urlData.publicUrl);
+    } catch (err) {
+      suggestSubmitBtn.disabled = false;
+      console.error('Не удалось загрузить фото:', err);
+      suggestStatus.textContent = '❌ Не удалось загрузить фото. Попробуйте другое или отправьте без фото.';
+      suggestStatus.className = 'suggest-status is-error';
+      suggestStatus.hidden = false;
+      return;
+    }
+  }
+
+  suggestStatus.textContent = 'Отправляю заявку…';
+
+  // verified: false — заявка сразу попадает в общую очередь модерации
+  // (ту же, что видит режим картографа через тогл "Показывать
+  // неподтверждённые"), а не в отдельную панель Netlify Forms.
+  db.from('locations').insert([{
+    loc_id: locId, name, category, description, rarity, x, y, contact,
+    images, conditions: [], verified: false,
+  }])
+    .then(({ error }) => {
+      suggestSubmitBtn.disabled = false;
+
+      if (error) {
+        console.error('Не удалось отправить заявку:', error);
+        suggestStatus.textContent = '❌ Не получилось отправить. Попробуйте ещё раз.';
+        suggestStatus.className = 'suggest-status is-error';
+        suggestStatus.hidden = false;
+        return;
+      }
+
       suggestStatus.textContent = 'Спасибо! Заявка отправлена на проверку.';
       suggestStatus.className = 'suggest-status is-success';
       suggestStatus.hidden = false;
+      sPhotoPreview.hidden = true;
       suggestForm.reset();
       setTimeout(closeSuggestModal, 1800);
     })
     .catch((err) => {
-      console.error('Не удалось отправить форму:', err);
-      suggestStatus.textContent = 'Не получилось отправить. Попробуйте ещё раз.';
+      suggestSubmitBtn.disabled = false;
+      console.error('Ошибка сети при отправке заявки:', err);
+      suggestStatus.textContent = '❌ Не получилось отправить. Попробуйте ещё раз.';
       suggestStatus.className = 'suggest-status is-error';
       suggestStatus.hidden = false;
-    })
-    .finally(() => {
-      suggestSubmitBtn.disabled = false;
     });
 });
