@@ -17,3 +17,13 @@
   for = "/locations.json"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
+
+# /index.html и / отдавали одинаковый контент как два разных URL — Google
+# расценил это как дубликат страницы без явно выбранного canonical.
+# Редирект на уровне сервера — более сильный сигнал для поисковика, чем
+# просто <link rel="canonical">, полностью убирает второй URL из обращения.
+[[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+  force = true
