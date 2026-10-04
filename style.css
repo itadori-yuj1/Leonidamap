@@ -36,6 +36,15 @@ html, body {
   overflow: hidden;
 }
 
+/* Текстовые страницы (About, Privacy) — не карта, им нужна обычная
+   прокрутка документа, а не overflow:hidden, который нужен только для
+   страницы с картой (там скроллится сама карта, а не body). */
+body.static-page-body {
+  overflow-y: auto;
+  height: auto;
+  min-height: 100%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
