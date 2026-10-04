@@ -706,6 +706,48 @@ input:focus-visible,
   transition: background 0.15s, color 0.15s;
 }
 
+.leo-popup-edit-btn {
+  background: transparent;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.leo-popup-edit-btn:hover:not(:disabled) { background: var(--cyan); color: var(--bg-base); }
+.leo-popup-edit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.leo-popup-delete-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid var(--text-low);
+  color: var(--text-low);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.leo-popup-delete-btn:hover:not(:disabled) { border-color: #ff3b3b; color: #ff3b3b; }
+
+.leo-popup-delete-btn.is-confirming {
+  border-color: #ff3b3b;
+  background: #ff3b3b;
+  color: #fff;
+}
+
+.leo-popup-delete-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
 .leo-popup-share-btn:hover,
 .leo-popup-share-btn.is-copied {
   background: var(--pop-color, var(--pink));

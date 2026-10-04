@@ -35,6 +35,18 @@ function conditionLabel(tag) {
   return CONDITION_LABELS[tag] || tag;
 }
 
+// Общий HTML чекбоксов условий — используется и формой новой точки, и формой
+// редактирования. checkedTags — какие из них отметить галочкой заранее
+// (пусто для новой точки, location.conditions при редактировании).
+function buildConditionsHtml(checkedTags) {
+  checkedTags = checkedTags || [];
+  return Object.entries(CONDITION_LABELS).map(([val, label]) => `
+    <label style="display:inline-flex; align-items:center; gap:4px; font-size:11px; margin:2px 8px 2px 0; color:#ccc;">
+      <input type="checkbox" class="admCondition" value="${val}" ${checkedTags.includes(val) ? 'checked' : ''}> ${label}
+    </label>
+  `).join('');
+}
+
 /* ---------------------------------------------------------
    2. БАЗА ДАННЫХ ТОЧЕК
    Грузится асинхронно из locations.json. Поддерживаемые поля
@@ -205,6 +217,12 @@ function buildPopupHtml(location) {
           </button>
           <button class="leo-popup-share-btn" data-loc-id="${location.id}" title="Скопировать ссылку на находку" aria-label="Поделиться этой точкой">🔗</button>
         </div>
+        ${isAdminMode ? `
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button class="leo-popup-edit-btn" data-loc-id="${location.id}" style="flex:1;">✎ Редактировать</button>
+            <button class="leo-popup-delete-btn" data-loc-id="${location.id}" style="flex:1; margin-top:0;">🗑 Удалить</button>
+          </div>
+        ` : ''}
       </div>
     </div>`;
 }
@@ -257,6 +275,238 @@ function bindPopupButton(popupNode) {
   if (approveBtn) {
     approveBtn.onclick = () => approveLocation(approveBtn.dataset.locId, approveBtn);
   }
+
+  const editBtn = popupNode.querySelector('.leo-popup-edit-btn');
+  if (editBtn) {
+    editBtn.onclick = () => openEditForm(editBtn.dataset.locId);
+  }
+
+  // Удаление — с двухшаговым подтверждением прямо на кнопке, а не через
+  // window.confirm(). Браузеры иногда молча блокируют системные диалоги
+  // после нескольких подряд за сессию (с этим уже сталкивались в форме
+  // картографа) — текст на самой кнопке от этого не зависит.
+  const deleteBtn = popupNode.querySelector('.leo-popup-delete-btn');
+  if (deleteBtn) {
+    deleteBtn.onclick = () => {
+      if (deleteBtn.dataset.confirming === 'true') {
+        deleteLocation(deleteBtn.dataset.locId, deleteBtn);
+        return;
+      }
+      deleteBtn.dataset.confirming = 'true';
+      deleteBtn.textContent = '❗ Точно удалить?';
+      deleteBtn.classList.add('is-confirming');
+      setTimeout(() => {
+        // Если за 4 секунды не нажали второй раз — сбрасываем обратно,
+        // чтобы случайный повторный тап спустя время не удалил точку.
+        if (deleteBtn.dataset.confirming === 'true') {
+          deleteBtn.dataset.confirming = 'false';
+          deleteBtn.textContent = '🗑 Удалить точку';
+          deleteBtn.classList.remove('is-confirming');
+        }
+      }, 4000);
+    };
+  }
+}
+
+// Открывает форму редактирования ПРЯМО в попапе уже существующего маркера —
+// в отличие от openAdminEditor() (форма для НОВОЙ точки), тут не создаётся
+// второй временный маркер, просто подменяется содержимое попапа. Координаты
+// (x, y) в этой форме не редактируются — чтобы передвинуть точку, проще
+// удалить и добавить заново через клик по нужному месту карты.
+function openEditForm(id) {
+  const entry = markerIndex[id];
+  if (!entry) return;
+  const loc = entry.data;
+
+  const conditionsHtml = buildConditionsHtml(loc.conditions);
+  // images хранятся как ["img/shotgun.jpg", ...] — полю нужны голые имена
+  // файлов через запятую, без префикса img/ (он добавляется автоматически)
+  const imagesValue = (loc.images || []).map((p) => p.replace(/^img\//, '')).join(', ');
+  const rarityValue = loc.rarity && RARITY[loc.rarity] ? loc.rarity : 'common';
+
+  const editHtml = `
+    <div class="leo-popup-inner" style="--pop-color: #00f0ff;">
+      <div class="leo-popup-band"></div>
+      <div class="leo-popup-body" style="max-height: 70vh; overflow-y: auto;">
+        <div class="leo-popup-category">РЕДАКТИРОВАНИЕ [X: ${loc.x}, Y: ${loc.y}]</div>
+
+        <input id="admName" type="text" value="${loc.name.replace(/"/g, '&quot;')}" placeholder="Название объекта"
+          style="width:100%; margin:8px 0 6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
+
+        <select id="admCat" style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
+          <option value="weapons" ${loc.category === 'weapons' ? 'selected' : ''}>🔫 Оружие</option>
+          <option value="vehicles" ${loc.category === 'vehicles' ? 'selected' : ''}>🚗 Транспорт</option>
+          <option value="events" ${loc.category === 'events' ? 'selected' : ''}>⚡ Случайные события</option>
+          <option value="eastereggs" ${loc.category === 'eastereggs' ? 'selected' : ''}>🥚 Пасхалки</option>
+          <option value="underwater" ${loc.category === 'underwater' ? 'selected' : ''}>🤿 Подводный мир</option>
+          <option value="activities" ${loc.category === 'activities' ? 'selected' : ''}>🎯 Активности</option>
+        </select>
+
+        <select id="admRarity" style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
+          <option value="common" ${rarityValue === 'common' ? 'selected' : ''}>Обычная</option>
+          <option value="rare" ${rarityValue === 'rare' ? 'selected' : ''}>Редкая</option>
+          <option value="unique" ${rarityValue === 'unique' ? 'selected' : ''}>Уникальная</option>
+        </select>
+
+        <div style="margin-bottom:6px;">${conditionsHtml}</div>
+
+        <input id="admImg" type="text" value="${imagesValue}" placeholder="Картинки через запятую"
+          style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:12px;">
+
+        <textarea id="admDesc" placeholder="Описание..." rows="2"
+          style="width:100%; margin-bottom:8px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:12px; resize:none;">${loc.description}</textarea>
+
+        <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#ccc; margin-bottom:8px;">
+          <input type="checkbox" id="admVerified" ${loc.verified !== false ? 'checked' : ''}> Проверено (видно всем на карте)
+        </label>
+
+        <div style="display:flex; gap:6px;">
+          <button id="admEditSaveBtn" class="leo-popup-btn" style="flex:1; background:#00f0ff; color:#0f0f13;">
+            💾 Сохранить изменения
+          </button>
+          <button id="admEditCancelBtn" class="leo-popup-btn" style="flex:1; background:transparent; border:1px solid #666; color:#999;">
+            Отмена
+          </button>
+        </div>
+
+        <p id="admEditStatus" style="margin:8px 0 0; font-size:12px; font-weight:700; min-height:16px;"></p>
+      </div>
+    </div>
+  `;
+
+  entry.marker.setPopupContent(editHtml);
+
+  setTimeout(() => {
+    // Та же логика, что и в openAdminEditor() — ищем поля ТОЛЬКО внутри
+    // попапа ЭТОЙ конкретной точки, а не по всему документу, иначе при
+    // одновременно открытой форме новой точки (те же ID полей) можно
+    // случайно прочитать/записать чужие значения.
+    const popupNode = entry.marker.getPopup() && entry.marker.getPopup().getElement();
+    if (!popupNode) {
+      console.error('Попап формы редактирования не найден в DOM');
+      return;
+    }
+
+    const saveBtn = popupNode.querySelector('#admEditSaveBtn');
+    const cancelBtn = popupNode.querySelector('#admEditCancelBtn');
+    const statusEl = popupNode.querySelector('#admEditStatus');
+    if (!saveBtn || !cancelBtn) {
+      console.error('Кнопки формы редактирования не найдены в DOM');
+      return;
+    }
+
+    function setStatus(text, color) {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.style.color = color || '#fff';
+    }
+
+    cancelBtn.onclick = () => {
+      // Возвращаем попап к обычному виду точки, без сохранения изменений
+      entry.marker.setPopupContent(buildPopupHtml(entry.data));
+      const popupEl = entry.marker.getPopup() && entry.marker.getPopup().getElement();
+      if (popupEl) bindPopupButton(popupEl);
+    };
+
+    saveBtn.onclick = () => {
+      try {
+        const name = popupNode.querySelector('#admName').value || 'Без названия';
+        const category = popupNode.querySelector('#admCat').value;
+        const rarity = popupNode.querySelector('#admRarity').value;
+        const description = popupNode.querySelector('#admDesc').value || '';
+        const verified = popupNode.querySelector('#admVerified').checked;
+        const imgVal = popupNode.querySelector('#admImg').value.trim();
+        const images = imgVal
+          ? imgVal.split(',').map((s) => s.trim()).filter(Boolean).map((s) => `img/${s}`)
+          : [];
+        const conditions = Array.from(popupNode.querySelectorAll('.admCondition:checked')).map((cb) => cb.value);
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняю…';
+        setStatus('Отправляю изменения…', '#00f0ff');
+
+        db.from('locations')
+          .update({ name, category, rarity, description, verified, images, conditions })
+          .eq('loc_id', id)
+          .then(({ error }) => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '💾 Сохранить изменения';
+
+            if (error) {
+              setStatus('❌ Ошибка: ' + error.message, '#ff007f');
+              return;
+            }
+
+            // Обновляем локальные данные и маркер/попап на лету. Если категория
+            // поменялась — маркер нужно физически перенести в другую
+            // слой-группу (layerGroups[категория]), иначе переключение
+            // фильтров в сайдбаре будет работать для него неправильно —
+            // setIcon() меняет только иконку, но не группу.
+            const categoryChanged = entry.data.category !== category;
+            Object.assign(entry.data, { name, category, rarity, description, verified, images, conditions });
+
+            if (categoryChanged) {
+              entry.marker.remove();
+              entry.marker.addTo(layerGroups[category]);
+            }
+            entry.marker.setIcon(createIcon(entry.data));
+            entry.marker.setPopupContent(buildPopupHtml(entry.data));
+            const popupEl = entry.marker.getPopup() && entry.marker.getPopup().getElement();
+            if (popupEl) bindPopupButton(popupEl);
+
+            updateFilterCounts();
+            updateProgress();
+            applySearchFilter();
+          })
+          .catch((err) => {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '💾 Сохранить изменения';
+            setStatus('❌ Ошибка сети: ' + err.message, '#ff007f');
+          });
+      } catch (err) {
+        setStatus('❌ Ошибка в форме: ' + err.message, '#ff007f');
+        console.error(err);
+      }
+    };
+  }, 100);
+}
+
+// Удаляет точку из базы и сразу убирает её маркер с карты, без перезагрузки.
+function deleteLocation(id, btnEl) {
+  const entry = markerIndex[id];
+  if (!entry) return;
+
+  btnEl.disabled = true;
+  btnEl.textContent = 'Удаляю…';
+
+  db.from('locations').delete().eq('loc_id', id)
+    .then(({ error }) => {
+      if (error) {
+        btnEl.disabled = false;
+        btnEl.dataset.confirming = 'false';
+        btnEl.classList.remove('is-confirming');
+        btnEl.textContent = '❌ Не вышло, нажмите ещё раз';
+        console.error('Не удалось удалить точку:', error);
+        return;
+      }
+
+      // marker.remove() сам убирает маркер из того слоя, где он лежит
+      // (layerGroups[категория]) — не нужно знать, в какой именно группе.
+      entry.marker.remove();
+      delete markerIndex[id];
+      const idx = locations.findIndex((l) => l.id === id);
+      if (idx !== -1) locations.splice(idx, 1);
+
+      updateProgress();
+      updateFilterCounts();
+    })
+    .catch((err) => {
+      btnEl.disabled = false;
+      btnEl.dataset.confirming = 'false';
+      btnEl.classList.remove('is-confirming');
+      btnEl.textContent = '❌ Не вышло, нажмите ещё раз';
+      console.error('Ошибка сети при удалении:', err);
+    });
 }
 
 // Меняет verified: false -> true прямо в базе, без пересоздания точки через
@@ -728,16 +978,7 @@ function openAdminEditor(x, y, latlng) {
   if (tempAdminMarker) map.removeLayer(tempAdminMarker);
   tempAdminMarker = L.marker(latlng).addTo(map);
 
-  const conditionOptions = [
-    ['night', 'Ночь'], ['rain', 'Дождь'], ['requires-crowbar', 'Нужен лом'],
-    ['requires-tool', 'Нужен инструмент'], ['high-wanted-risk', 'Высокий розыск'],
-    ['underwater', 'Под водой'], ['daytime-only', 'Только днём'],
-  ];
-  const conditionsHtml = conditionOptions.map(([val, label]) => `
-    <label style="display:inline-flex; align-items:center; gap:4px; font-size:11px; margin:2px 8px 2px 0; color:#ccc;">
-      <input type="checkbox" class="admCondition" value="${val}"> ${label}
-    </label>
-  `).join('');
+  const conditionsHtml = buildConditionsHtml();
 
   const popupHtml = `
     <div class="leo-popup-inner" style="--pop-color: #00f0ff;">
@@ -791,29 +1032,41 @@ function openAdminEditor(x, y, latlng) {
 
   tempAdminMarker.bindPopup(popupHtml, { className: 'leo-popup admin-popup' }).openPopup();
 
-  // Читает значения полей формы — общее для обеих кнопок (сохранить в базу
-  // и скопировать JSON), чтобы не дублировать одно и то же дважды.
-  function collectAdminFormValues() {
-    const name = document.getElementById('admName').value || 'Без названия';
-    const category = document.getElementById('admCat').value;
-    const rarity = document.getElementById('admRarity').value;
-    const description = document.getElementById('admDesc').value || '';
-    const verified = document.getElementById('admVerified').checked;
-
-    const imgVal = document.getElementById('admImg').value.trim();
-    const images = imgVal
-      ? imgVal.split(',').map(s => s.trim()).filter(Boolean).map(s => `img/${s}`)
-      : [];
-
-    const conditions = Array.from(document.querySelectorAll('.admCondition:checked')).map(cb => cb.value);
-
-    return { name, category, rarity, description, verified, images, conditions };
-  }
-
   setTimeout(() => {
-    const saveBtn = document.getElementById('admSaveBtn');
-    const copyBtn = document.getElementById('admCopyBtn');
-    const statusEl = document.getElementById('admStatus');
+    // Ищем поля ТОЛЬКО внутри попапа ЭТОЙ формы, а не по всему документу.
+    // Форма редактирования (openEditForm) использует те же ID полей
+    // (#admName и т.д.) — если одновременно в DOM окажутся обе формы
+    // (например, админ не закрыл форму новой точки и открыл редактирование
+    // другой точки), document.getElementById() вернул бы поле из ЧУЖОЙ
+    // формы, а не этой. Scoped-запрос внутри popupNode решает это надёжно.
+    const popupNode = tempAdminMarker.getPopup() && tempAdminMarker.getPopup().getElement();
+    if (!popupNode) {
+      console.error('Попап формы картографа не найден в DOM');
+      return;
+    }
+
+    // Читает значения полей формы — общее для обеих кнопок (сохранить в базу
+    // и скопировать JSON), чтобы не дублировать одно и то же дважды.
+    function collectAdminFormValues() {
+      const name = popupNode.querySelector('#admName').value || 'Без названия';
+      const category = popupNode.querySelector('#admCat').value;
+      const rarity = popupNode.querySelector('#admRarity').value;
+      const description = popupNode.querySelector('#admDesc').value || '';
+      const verified = popupNode.querySelector('#admVerified').checked;
+
+      const imgVal = popupNode.querySelector('#admImg').value.trim();
+      const images = imgVal
+        ? imgVal.split(',').map(s => s.trim()).filter(Boolean).map(s => `img/${s}`)
+        : [];
+
+      const conditions = Array.from(popupNode.querySelectorAll('.admCondition:checked')).map(cb => cb.value);
+
+      return { name, category, rarity, description, verified, images, conditions };
+    }
+
+    const saveBtn = popupNode.querySelector('#admSaveBtn');
+    const copyBtn = popupNode.querySelector('#admCopyBtn');
+    const statusEl = popupNode.querySelector('#admStatus');
 
     // Статус выводится текстом прямо в форме, а не через alert() — мобильные
     // браузеры после нескольких подряд идущих alert() иногда молча
