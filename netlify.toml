@@ -27,3 +27,18 @@
   to = "/"
   status = 301
   force = true
+
+# Чтобы /about и /privacy (без .html на конце) тоже открывали страницы —
+# на случай, если кто-то введёт адрес руками или перейдёт по старой ссылке
+# без расширения файла.
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 301
+  force = true
