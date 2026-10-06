@@ -200,7 +200,7 @@
         placeholder="Где находится, как добраться, особенности..."></textarea>
 
       <label class="form-label" for="sPhoto">Фото находки (необязательно, но сильно ускоряет проверку)</label>
-      <input id="sPhoto" name="photo" class="form-input" type="file" accept="image/*" capture="environment">
+      <input id="sPhoto" name="photo" class="form-input" type="file" accept="image/*">
       <p id="sPhotoPreview" class="photo-preview" hidden></p>
 
       <label class="form-label" for="sRarity">Насколько редкая находка? (необязательно)</label>
@@ -231,6 +231,36 @@
       </div>
 
       <p id="suggestStatus" class="suggest-status" hidden></p>
+    </form>
+  </div>
+
+  <!-- ============ МОДАЛКА: ВХОД КАРТОГРАФА ============
+       Обычная форма вместо системных окон prompt(): их можно случайно
+       заблокировать галочкой «Не показывать снова», и менеджер паролей
+       в них не работает. Атрибуты autocomplete=username/current-password
+       нужны именно ему, чтобы сохранить и подставить данные. -->
+  <div id="loginOverlay" class="modal-overlay"></div>
+
+  <div id="loginModal" class="modal-card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <button id="loginCloseBtn" class="modal-close" type="button" aria-label="Закрыть форму входа">✕</button>
+
+    <h2 id="loginTitle" class="modal-title">Вход картографа</h2>
+    <p class="modal-subtitle">Доступ только для редакторов карты.</p>
+
+    <form id="loginForm">
+      <label class="form-label" for="loginEmail">Email</label>
+      <input id="loginEmail" name="email" class="form-input" type="email" inputmode="email"
+        autocomplete="username" required>
+
+      <label class="form-label" for="loginPassword">Пароль</label>
+      <input id="loginPassword" name="password" class="form-input" type="password"
+        autocomplete="current-password" required>
+
+      <div class="form-actions">
+        <button type="submit" id="loginSubmitBtn" class="submit-btn">Войти</button>
+      </div>
+
+      <p id="loginStatus" class="suggest-status" hidden></p>
     </form>
   </div>
 
