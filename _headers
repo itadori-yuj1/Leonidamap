@@ -1,0 +1,12 @@
+/app.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/style.css
+  Cache-Control: no-cache, no-store, must-revalidate
+/locations.json
+  Cache-Control: no-cache, no-store, must-revalidate
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+/about
+  Cache-Control: no-cache, no-store, must-revalidate
+/privacy
+  Cache-Control: no-cache, no-store, must-revalidate

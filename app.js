@@ -32,7 +32,38 @@ const CONDITION_LABELS = {
   'daytime-only': 'Только днём',
 };
 function conditionLabel(tag) {
-  return CONDITION_LABELS[tag] || tag;
+  // hasOwnProperty, а не просто CONDITION_LABELS[tag]: иначе тег вроде
+  // "constructor" вернул бы не строку, а встроенную функцию объекта.
+  return Object.prototype.hasOwnProperty.call(CONDITION_LABELS, tag) ? CONDITION_LABELS[tag] : tag;
+}
+
+/* ---------------------------------------------------------
+   Защита от вредоносных данных. С тех пор как форма заявок пишет прямо
+   в базу, любой может записать туда произвольный текст (в обход самого
+   сайта, через публичный API) — поэтому ВСЁ, что пришло из базы,
+   экранируется перед подстановкой в HTML и проверяется при загрузке.
+--------------------------------------------------------- */
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Картинка допустима, только если это файл из папки img/ на самом сайте
+// или из публичного хранилища нашего же проекта Supabase.
+function isSafeImagePath(p) {
+  return typeof p === 'string' && p.length <= 500 && !/[\s"'<>\\]/.test(p) &&
+    (p.startsWith('img/') || p.startsWith(SUPABASE_URL + '/storage/v1/object/public/'));
+}
+
+// Админ вводит голое имя файла (shotgun.jpg) — добавляем img/. А полные
+// ссылки (фото из заявок лежат в хранилище Supabase) оставляем как есть,
+// иначе получилось бы сломанное img/https://...
+function normalizeImagePath(name) {
+  return /^https?:\/\//.test(name) ? name : 'img/' + name;
 }
 
 // Общий HTML чекбоксов условий — используется и формой новой точки, и формой
@@ -182,8 +213,9 @@ function buildPopupHtml(location) {
   const rarity = location.rarity && RARITY[location.rarity] ? location.rarity : 'common';
 
   const images = getImages(location);
+  const safeId = escapeHtml(location.id);
   const imageHtml = images.length
-    ? `<div class="leo-popup-img-wrap"><img src="${images[0]}" alt="${location.name}" class="leo-popup-img" loading="lazy" onerror="this.closest('.leo-popup-img-wrap').style.display='none'"></div>`
+    ? `<div class="leo-popup-img-wrap"><img src="${escapeHtml(images[0])}" alt="${escapeHtml(location.name)}" class="leo-popup-img" loading="lazy" onerror="this.closest('.leo-popup-img-wrap').style.display='none'"></div>`
     : '';
 
   const rarityHtml = rarity !== 'common'
@@ -191,13 +223,13 @@ function buildPopupHtml(location) {
     : '';
 
   const tagsHtml = (location.conditions && location.conditions.length)
-    ? `<div class="leo-popup-tags">${location.conditions.map(c => `<span class="leo-popup-tag">${conditionLabel(c)}</span>`).join('')}</div>`
+    ? `<div class="leo-popup-tags">${location.conditions.map(c => `<span class="leo-popup-tag">${escapeHtml(conditionLabel(c))}</span>`).join('')}</div>`
     : '';
 
   const unverifiedHtml = location.verified === false
     ? `<div class="leo-popup-unverified">
          ⏳ Ожидает проверки — координаты могут быть неточными
-         ${isAdminMode ? `<button class="leo-popup-approve-btn" data-loc-id="${location.id}">✔ Одобрить</button>` : ''}
+         ${isAdminMode ? `<button class="leo-popup-approve-btn" data-loc-id="${safeId}">✔ Одобрить</button>` : ''}
        </div>`
     : '';
 
@@ -208,19 +240,19 @@ function buildPopupHtml(location) {
       <div class="leo-popup-body">
         ${unverifiedHtml}
         <div class="leo-popup-category">${cat.icon} ${cat.label.toUpperCase()}${rarityHtml}</div>
-        <h3 class="leo-popup-title">${location.name}</h3>
+        <h3 class="leo-popup-title">${escapeHtml(location.name)}</h3>
         ${tagsHtml}
-        <p class="leo-popup-desc">${location.description}</p>
+        <p class="leo-popup-desc">${escapeHtml(location.description)}</p>
         <div class="leo-popup-actions">
-          <button class="leo-popup-btn${isFound ? ' is-active' : ''}" data-loc-id="${location.id}">
+          <button class="leo-popup-btn${isFound ? ' is-active' : ''}" data-loc-id="${safeId}">
             ${isFound ? '✔ Отмечено как найденное' : 'Отметить как найденное'}
           </button>
-          <button class="leo-popup-share-btn" data-loc-id="${location.id}" title="Скопировать ссылку на находку" aria-label="Поделиться этой точкой">🔗</button>
+          <button class="leo-popup-share-btn" data-loc-id="${safeId}" title="Скопировать ссылку на находку" aria-label="Поделиться этой точкой">🔗</button>
         </div>
         ${isAdminMode ? `
           <div style="display:flex; gap:6px; margin-top:8px;">
-            <button class="leo-popup-edit-btn" data-loc-id="${location.id}" style="flex:1;">✎ Редактировать</button>
-            <button class="leo-popup-delete-btn" data-loc-id="${location.id}" style="flex:1; margin-top:0;">🗑 Удалить</button>
+            <button class="leo-popup-edit-btn" data-loc-id="${safeId}" style="flex:1;">✎ Редактировать</button>
+            <button class="leo-popup-delete-btn" data-loc-id="${safeId}" style="flex:1; margin-top:0;">🗑 Удалить</button>
           </div>
         ` : ''}
       </div>
@@ -241,7 +273,13 @@ function addMarkerForLocation(loc) {
 }
 
 function renderMarkers() {
-  locations.forEach(addMarkerForLocation);
+  locations.forEach((loc) => {
+    try {
+      addMarkerForLocation(loc);
+    } catch (err) {
+      console.error('Не удалось отрисовать точку', loc && loc.id, err);
+    }
+  });
 }
 
 // Leaflet divIcon оборачивает переданный html в свой собственный контейнер
@@ -330,7 +368,7 @@ function openEditForm(id) {
       <div class="leo-popup-body" style="max-height: 70vh; overflow-y: auto;">
         <div class="leo-popup-category">РЕДАКТИРОВАНИЕ [X: ${loc.x}, Y: ${loc.y}]</div>
 
-        <input id="admName" type="text" value="${loc.name.replace(/"/g, '&quot;')}" placeholder="Название объекта"
+        <input id="admName" type="text" value="${escapeHtml(loc.name)}" placeholder="Название объекта"
           style="width:100%; margin:8px 0 6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
 
         <select id="admCat" style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
@@ -350,11 +388,11 @@ function openEditForm(id) {
 
         <div style="margin-bottom:6px;">${conditionsHtml}</div>
 
-        <input id="admImg" type="text" value="${imagesValue}" placeholder="Картинки через запятую"
+        <input id="admImg" type="text" value="${escapeHtml(imagesValue)}" placeholder="Картинки через запятую"
           style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:12px;">
 
         <textarea id="admDesc" placeholder="Описание..." rows="2"
-          style="width:100%; margin-bottom:8px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:12px; resize:none;">${loc.description}</textarea>
+          style="width:100%; margin-bottom:8px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:12px; resize:none;">${escapeHtml(loc.description)}</textarea>
 
         <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#ccc; margin-bottom:8px;">
           <input type="checkbox" id="admVerified" ${loc.verified !== false ? 'checked' : ''}> Проверено (видно всем на карте)
@@ -417,7 +455,7 @@ function openEditForm(id) {
         const verified = popupNode.querySelector('#admVerified').checked;
         const imgVal = popupNode.querySelector('#admImg').value.trim();
         const images = imgVal
-          ? imgVal.split(',').map((s) => s.trim()).filter(Boolean).map((s) => `img/${s}`)
+          ? imgVal.split(',').map((s) => s.trim()).filter(Boolean).map(normalizeImagePath)
           : [];
         const conditions = Array.from(popupNode.querySelectorAll('.admCondition:checked')).map((cb) => cb.value);
 
@@ -860,24 +898,41 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // переводим формат строки из базы в тот же вид объекта, который уже
 // использует весь остальной код (renderMarkers, buildPopupHtml и т.д.).
 function rowToLocation(row) {
+  if (!row) return null;
+  const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+
+  const id = String(row.loc_id == null ? '' : row.loc_id);
+  const x = Number(row.x);
+  const y = Number(row.y);
+
+  // Строка с неизвестной категорией, странным id или без координат не должна
+  // ломать загрузку остальных точек — просто пропускаем её.
+  if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || !has(CATEGORIES, row.category) ||
+      !Number.isFinite(x) || !Number.isFinite(y)) {
+    console.warn('Пропущена некорректная строка из базы:', row.loc_id);
+    return null;
+  }
+
   return {
-    id: row.loc_id,
-    name: row.name,
+    id,
+    name: String(row.name == null ? '' : row.name).trim().slice(0, 120) || 'Без названия',
     category: row.category,
-    x: row.x,
-    y: row.y,
-    description: row.description,
-    images: row.images || [],
-    rarity: row.rarity,
-    conditions: row.conditions || [],
-    verified: row.verified,
+    x,
+    y,
+    description: String(row.description == null ? '' : row.description).slice(0, 2000),
+    images: Array.isArray(row.images) ? row.images.filter(isSafeImagePath).slice(0, 5) : [],
+    rarity: has(RARITY, row.rarity) ? row.rarity : null,
+    conditions: Array.isArray(row.conditions)
+      ? row.conditions.filter((c) => typeof c === 'string' && c.length <= 40).slice(0, 12)
+      : [],
+    verified: row.verified === false ? false : true,
   };
 }
 
 db.from('locations').select('*')
   .then(({ data, error }) => {
     if (error) throw error;
-    locations = data.map(rowToLocation);
+    locations = data.map(rowToLocation).filter(Boolean);
     renderMarkers();
     renderFilters();
     updateProgress();
@@ -930,22 +985,79 @@ function attemptAdminAccess() {
       toggleAdminMode();
       return;
     }
-
-    const email = prompt('Email картографа:');
-    if (email === null) return; // нажали "Отмена"
-
-    const password = prompt('Пароль:');
-    if (password === null) return;
-
-    db.auth.signInWithPassword({ email, password }).then(({ error }) => {
-      if (error) {
-        alert('Не удалось войти: ' + error.message);
-        return;
-      }
-      toggleAdminMode();
-    });
+    openLoginModal();
   });
 }
+
+/* ---------------------------------------------------------
+   Форма входа картографа (модальное окно вместо prompt())
+--------------------------------------------------------- */
+const loginOverlay = document.getElementById('loginOverlay');
+const loginModal = document.getElementById('loginModal');
+const loginForm = document.getElementById('loginForm');
+const loginEmail = document.getElementById('loginEmail');
+const loginPassword = document.getElementById('loginPassword');
+const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+const loginStatus = document.getElementById('loginStatus');
+const loginCloseBtn = document.getElementById('loginCloseBtn');
+
+function showLoginStatus(text, isError) {
+  loginStatus.textContent = text;
+  loginStatus.className = 'suggest-status ' + (isError ? 'is-error' : 'is-success');
+  loginStatus.hidden = false;
+}
+
+function openLoginModal() {
+  loginStatus.hidden = true;
+  loginOverlay.classList.add('is-open');
+  loginModal.classList.add('is-open');
+  if (window.innerWidth <= 860) setSidebarOpen(false);
+  setTimeout(() => loginEmail.focus(), 50);
+}
+
+function closeLoginModal() {
+  loginOverlay.classList.remove('is-open');
+  loginModal.classList.remove('is-open');
+  // Пароль из поля убираем с небольшой задержкой — чтобы браузер успел
+  // предложить сохранить его в менеджере паролей.
+  setTimeout(() => { loginPassword.value = ''; }, 800);
+}
+
+loginCloseBtn.addEventListener('click', closeLoginModal);
+loginOverlay.addEventListener('click', closeLoginModal);
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && loginModal.classList.contains('is-open')) closeLoginModal();
+});
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginSubmitBtn.disabled = true;
+  showLoginStatus('Входим…', false);
+
+  try {
+    const { error } = await db.auth.signInWithPassword({
+      email: loginEmail.value.trim(),
+      password: loginPassword.value,
+    });
+
+    if (error) {
+      // Самую частую ошибку переводим, остальные показываем как есть
+      const text = error.message === 'Invalid login credentials'
+        ? 'Неверный email или пароль.'
+        : 'Не удалось войти: ' + error.message;
+      showLoginStatus('❌ ' + text, true);
+      return;
+    }
+
+    closeLoginModal();
+    if (!isAdminMode) toggleAdminMode();
+  } catch (err) {
+    console.error('Ошибка сети при входе:', err);
+    showLoginStatus('❌ Ошибка сети. Попробуйте ещё раз.', true);
+  } finally {
+    loginSubmitBtn.disabled = false;
+  }
+});
 
 // Триггер для десктопа — Ctrl+Shift+A
 window.addEventListener('keydown', (e) => {
@@ -1056,7 +1168,7 @@ function openAdminEditor(x, y, latlng) {
 
       const imgVal = popupNode.querySelector('#admImg').value.trim();
       const images = imgVal
-        ? imgVal.split(',').map(s => s.trim()).filter(Boolean).map(s => `img/${s}`)
+        ? imgVal.split(',').map(s => s.trim()).filter(Boolean).map(normalizeImagePath)
         : [];
 
       const conditions = Array.from(popupNode.querySelectorAll('.admCondition:checked')).map(cb => cb.value);
@@ -1106,6 +1218,13 @@ function openAdminEditor(x, y, latlng) {
 
           // Точка сразу появляется на карте — без перезагрузки страницы
           const newLocation = rowToLocation({ loc_id: id, x, y, ...values });
+          if (!newLocation) {
+            // Точка записана в базу, но не прошла проверку формата —
+            // на карте появится после перезагрузки страницы (если вообще
+            // пройдёт проверку), без падения кода сейчас.
+            setStatus('✔ Сохранено в базу. Обновите страницу, чтобы увидеть точку.', '#00f0ff');
+            return;
+          }
           locations.push(newLocation);
           addMarkerForLocation(newLocation);
           updateFilterCounts();
@@ -1221,7 +1340,7 @@ sPhoto.addEventListener('change', () => {
     return;
   }
   const url = URL.createObjectURL(file);
-  sPhotoPreview.innerHTML = `<img src="${url}" alt=""> ${file.name}`;
+  sPhotoPreview.innerHTML = `<img src="${url}" alt=""> ${escapeHtml(file.name)}`;
   sPhotoPreview.hidden = false;
 });
 
