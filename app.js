@@ -929,7 +929,7 @@ function rowToLocation(row) {
   };
 }
 
-db.from('locations').select('*')
+db.from('locations').select('loc_id,name,category,x,y,description,images,rarity,conditions,verified')
   .then(({ data, error }) => {
     if (error) throw error;
     locations = data.map(rowToLocation).filter(Boolean);
