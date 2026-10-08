@@ -110,6 +110,10 @@ const mapConfig = {
   tileSize: 256,
   fullWidth: 8192,
   fullHeight: 8192,
+  // Пока настоящих тайлов нет — показываем векторную подложку-заглушку.
+  // Когда папка tiles/ будет готова, поставить useTiles: true.
+  useTiles: false,
+  baseImage: 'img/base-placeholder.svg',
 };
 
 /* ---------------------------------------------------------
@@ -147,13 +151,17 @@ const bounds = L.latLngBounds(
   map.unproject([mapConfig.fullWidth, 0], mapConfig.tileMaxZoom)
 );
 
-const mapTiles = L.tileLayer('tiles/{z}/{x}/{y}.png', {
-  minZoom: mapConfig.tileMinZoom,
-  maxZoom: mapConfig.tileMaxZoom,
-  tileSize: mapConfig.tileSize,
-  noWrap: true,
-  bounds: bounds,
-}).addTo(map);
+if (mapConfig.useTiles) {
+  L.tileLayer('tiles/{z}/{x}/{y}.png', {
+    minZoom: mapConfig.tileMinZoom,
+    maxZoom: mapConfig.tileMaxZoom,
+    tileSize: mapConfig.tileSize,
+    noWrap: true,
+    bounds: bounds,
+  }).addTo(map);
+} else {
+  L.imageOverlay(mapConfig.baseImage, bounds).addTo(map);
+}
 
 map.fitBounds(bounds);
 map.setMaxBounds(bounds.pad(0.25));
