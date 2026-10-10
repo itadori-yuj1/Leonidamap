@@ -474,9 +474,14 @@ function openEditForm(id) {
         db.from('locations')
           .update({ name, category, rarity, description, verified, images, conditions })
           .eq('loc_id', id)
-          .then(({ error }) => {
+          .select('loc_id')
+          .then(({ data, error }) => {
             saveBtn.disabled = false;
             saveBtn.textContent = '💾 Сохранить изменения';
+
+            if (!error && (!data || data.length === 0)) {
+              error = new Error('нет прав — войдите в режим картографа заново');
+            }
 
             if (error) {
               setStatus('❌ Ошибка: ' + error.message, '#ff007f');
@@ -525,13 +530,18 @@ function deleteLocation(id, btnEl) {
   btnEl.disabled = true;
   btnEl.textContent = 'Удаляю…';
 
-  db.from('locations').delete().eq('loc_id', id)
-    .then(({ error }) => {
+  db.from('locations').delete().eq('loc_id', id).select('loc_id')
+    .then(({ data, error }) => {
+      // Без прав (сессия истекла) база не возвращает ошибку, а просто удаляет
+      // 0 строк — считаем это неудачей, а не успехом.
+      if (!error && (!data || data.length === 0)) {
+        error = new Error('нет прав или точка уже удалена — войдите заново');
+      }
       if (error) {
         btnEl.disabled = false;
         btnEl.dataset.confirming = 'false';
         btnEl.classList.remove('is-confirming');
-        btnEl.textContent = '❌ Не вышло, нажмите ещё раз';
+        btnEl.textContent = '❌ Не вышло: ' + (error.message || 'ошибка');
         console.error('Не удалось удалить точку:', error);
         return;
       }
@@ -969,11 +979,22 @@ const adminPanel = document.getElementById('adminPanel');
 const admGoX = document.getElementById('admGoX');
 const admGoY = document.getElementById('admGoY');
 
+// Содержимое окошка каждой точки строится заранее, при загрузке карты, когда
+// режим картографа ещё выключен — поэтому кнопки «Редактировать»/«Удалить»
+// в нём отсутствуют. При входе/выходе из режима пересобираем все окошки.
+function refreshAllPopups() {
+  map.closePopup();
+  Object.values(markerIndex).forEach((entry) => {
+    entry.marker.setPopupContent(buildPopupHtml(entry.data));
+  });
+}
+
 function toggleAdminMode() {
   isAdminMode = !isAdminMode;
   // Панель показывается/прячется классом is-open — так же, как в CSS
   // (.admin-panel.is-open { display:block }), а не через [hidden].
   adminPanel.classList.toggle('is-open', isAdminMode);
+  refreshAllPopups();
 }
 
 // Общая точка входа в режим картографа — вызывается и по Ctrl+Shift+A
