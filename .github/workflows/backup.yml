@@ -1,0 +1,42 @@
+name: Backup locations
+
+on:
+  schedule:
+    - cron: '23 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Export locations from Supabase
+        run: |
+          mkdir -p backup
+          curl -fsS "https://izwqsntcwjvrjlbptbew.supabase.co/rest/v1/locations?select=loc_id,name,category,x,y,description,images,rarity,conditions,verified&order=loc_id" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6d3FzbnRjd2p2cmpsYnB0YmV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NTg4NDUsImV4cCI6MjEwNDMzNDg0NX0.ebl2eIKwHWJHohN3dngY2v8pqG-rSajhIUZNX0YXsig" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6d3FzbnRjd2p2cmpsYnB0YmV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NTg4NDUsImV4cCI6MjEwNDMzNDg0NX0.ebl2eIKwHWJHohN3dngY2v8pqG-rSajhIUZNX0YXsig" \
+            -o /tmp/locations.json
+          COUNT=$(jq 'length' /tmp/locations.json)
+          echo "Exported $COUNT locations"
+          if [ "$COUNT" -lt 1 ]; then
+            echo "Empty export, refusing to overwrite backup"
+            exit 1
+          fi
+          jq '.' /tmp/locations.json > backup/locations.json
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backup/locations.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Backup locations $(date -u +%F)"
+            git push
+          fi

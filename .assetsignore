@@ -7,3 +7,4 @@ wrangler.jsonc
 locations.csv
 edge-function
 netlify.toml
+backup
