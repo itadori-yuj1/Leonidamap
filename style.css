@@ -1045,6 +1045,17 @@ input[type="file"].form-input {
   }
 
   .sidebar.is-open { transform: translateX(0); }
+
+  /* Кнопка-крестик (гамбургер) лежит поверх левого верхнего угла открытого
+     меню и закрывала начало названия — сдвигаем содержимое вниз. */
+  .sidebar-scroll { padding-top: 68px; }
+
+  /* Крупнее цели нажатия на телефоне (рекомендация ~44px, минимум ~36px) */
+  .filters-quick-btn { font-size: 12px; padding: 9px 13px; }
+  .toggle-row { padding: 14px 10px; gap: 10px; }
+  .toggle-row input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; }
+  .sidebar-footer a { display: inline-block; padding: 8px 0; }
+
   #map { left: 0; }
   .leaflet-popup.leo-popup .leaflet-popup-content { width: 220px !important; }
   .leaflet-popup.admin-popup .leaflet-popup-content { width: 250px !important; }
