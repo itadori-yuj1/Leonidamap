@@ -1,0 +1,105 @@
+[
+  {
+    "loc_id": "loc-001",
+    "name": "Тайник с боевым дробовиком",
+    "category": "weapons",
+    "x": 320,
+    "y": 640,
+    "description": "Заброшенный склад в порту Мыса Сентавр. Дробовик лежит в контейнере за ржавой дверью — понадобится лом.",
+    "images": [
+      "img/shotgun.jpg"
+    ],
+    "rarity": "common",
+    "conditions": [
+      "requires-crowbar"
+    ],
+    "verified": true
+  },
+  {
+    "loc_id": "loc-002",
+    "name": "Спорткар «Comet S2»",
+    "category": "vehicles",
+    "x": 610,
+    "y": 420,
+    "description": "Стоит на крыше парковки в Вайс-Сити-Бич. Появляется только в ночное игровое время.",
+    "images": [
+      "img/comet.jpg"
+    ],
+    "rarity": "rare",
+    "conditions": [
+      "night"
+    ],
+    "verified": true
+  },
+  {
+    "loc_id": "loc-003",
+    "name": "Ограбление инкассаторов",
+    "category": "events",
+    "x": 480,
+    "y": 250,
+    "description": "Случайное событие на трассе Leonida Keys. Шанс появления выше во время дождя.",
+    "images": [],
+    "rarity": "rare",
+    "conditions": [
+      "rain"
+    ],
+    "verified": true
+  },
+  {
+    "loc_id": "loc-004",
+    "name": "Граффити «Vice City 1986»",
+    "category": "eastereggs",
+    "x": 180,
+    "y": 180,
+    "description": "Отсылка к оригинальной GTA: Vice City. Нарисовано на стене клуба в даунтауне.",
+    "images": [],
+    "rarity": "unique",
+    "conditions": [],
+    "verified": true
+  },
+  {
+    "loc_id": "loc-005",
+    "name": "Военный вертолёт «Annihilator»",
+    "category": "vehicles",
+    "x": 760,
+    "y": 700,
+    "description": "Охраняемая военная база к югу от материка. Высокий уровень розыска при захвате.",
+    "images": [],
+    "rarity": "unique",
+    "conditions": [
+      "high-wanted-risk"
+    ],
+    "verified": false
+  },
+  {
+    "loc_id": "loc-7003",
+    "name": "Дом томми",
+    "category": "events",
+    "x": 3360,
+    "y": 11646,
+    "description": "Возле море ",
+    "images": [],
+    "rarity": "common",
+    "conditions": [
+      "daytime-only"
+    ],
+    "verified": false
+  },
+  {
+    "loc_id": "loc-9279",
+    "name": "Hdjehe",
+    "category": "weapons",
+    "x": 1603,
+    "y": 11303,
+    "description": "Whejej",
+    "images": [
+      "img/Euhshe",
+      "img/jdjd"
+    ],
+    "rarity": "common",
+    "conditions": [
+      "high-wanted-risk"
+    ],
+    "verified": true
+  }
+]
