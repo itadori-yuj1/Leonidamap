@@ -307,6 +307,17 @@ function getMarkerEl(marker) {
    7. ЛОГИКА «ОТМЕТИТЬ КАК НАЙДЕННОЕ»
 --------------------------------------------------------- */
 function bindPopupButton(popupNode) {
+  // Клики внутри окошка не должны доходить до карты. Leaflet сам «глушит» их
+  // через пометку на родителях элемента, но кнопки вроде «Редактировать» и
+  // «Отмена» подменяют содержимое окошка прямо в обработчике клика — кнопка
+  // к этому моменту уже удалена из DOM, пометку у неё найти нельзя, и клик
+  // воспринимался как клик по карте: в режиме картографа вместо формы
+  // редактирования открывалась форма «НОВАЯ ТОЧКА».
+  if (!popupNode._leoStopClicks) {
+    popupNode._leoStopClicks = true;
+    popupNode.addEventListener('click', (ev) => ev.stopPropagation());
+  }
+
   const btn = popupNode.querySelector('.leo-popup-btn');
   if (btn) {
     btn.onclick = () => toggleFound(btn.dataset.locId);
