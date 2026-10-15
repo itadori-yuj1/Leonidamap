@@ -1386,7 +1386,7 @@ sPhoto.addEventListener('change', () => {
 
 // Cloudflare Turnstile: публичный Site Key (секретный ключ хранится только на сервере).
 // Пока ключ пустой — капча не показывается и заявки идут по-старому.
-const TURNSTILE_SITE_KEY = '';
+const TURNSTILE_SITE_KEY = '0x4AAAAAAFXtthWICmNqumuA';
 let turnstileWidgetId = null;
 
 function renderTurnstile() {
