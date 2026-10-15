@@ -8,3 +8,6 @@ locations.csv
 edge-function
 netlify.toml
 backup
+scripts
+supabase
+assetsignore.txt
