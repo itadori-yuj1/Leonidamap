@@ -183,7 +183,7 @@
       </p>
 
       <label class="form-label" for="sName">Название</label>
-      <input id="sName" name="name" class="form-input" type="text" required placeholder="Например: Тайник с дробовиком">
+      <input id="sName" name="name" class="form-input" type="text" required maxlength="80" placeholder="Например: Тайник с дробовиком">
 
       <label class="form-label" for="sCategory">Категория</label>
       <select id="sCategory" name="category" class="form-input" required>
@@ -196,7 +196,7 @@
       </select>
 
       <label class="form-label" for="sDescription">Описание</label>
-      <textarea id="sDescription" name="description" class="form-input" rows="3" required
+      <textarea id="sDescription" name="description" class="form-input" rows="3" required maxlength="1000"
         placeholder="Где находится, как добраться, особенности..."></textarea>
 
       <label class="form-label" for="sPhoto">Фото находки (необязательно, но сильно ускоряет проверку)</label>
@@ -224,7 +224,7 @@
       <button type="button" id="pickLocationBtn" class="pick-btn">🗺 Указать точку на карте</button>
 
       <label class="form-label" for="sContact">Контакт (необязательно)</label>
-      <input id="sContact" name="contact" class="form-input" type="text" placeholder="Discord/почта, если хотите быть на связи">
+      <input id="sContact" name="contact" class="form-input" type="text" maxlength="100" placeholder="Discord/почта, если хотите быть на связи">
 
       <div class="form-actions">
         <button type="submit" id="suggestSubmitBtn" class="submit-btn">Отправить</button>
