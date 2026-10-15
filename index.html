@@ -226,6 +226,8 @@
       <label class="form-label" for="sContact">Контакт (необязательно)</label>
       <input id="sContact" name="contact" class="form-input" type="text" maxlength="100" placeholder="Discord/почта, если хотите быть на связи">
 
+      <div id="turnstileBox" class="turnstile-box"></div>
+
       <div class="form-actions">
         <button type="submit" id="suggestSubmitBtn" class="submit-btn">Отправить</button>
       </div>
@@ -270,5 +272,6 @@
        (вместо статичного locations.json) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="app.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 </body>
 </html>
