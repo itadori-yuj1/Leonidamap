@@ -5,36 +5,30 @@
 /* ---------------------------------------------------------
    1. КОНФИГ КАТЕГОРИЙ, РЕДКОСТИ И ТЭГОВ УСЛОВИЙ
 --------------------------------------------------------- */
+const t = (key) => window.I18N.t(key);
+
 const CATEGORIES = {
-  weapons:    { label: 'Оружие',            color: '#ff007f', icon: '<svg viewBox="0 0 512 512"><path d="M55.505 435.172h91.88v-16.518h-91.88zm265.317-173.437v-49.326l16.518-.795v66.639H218.618c2.158-5.162 4.316-11.356 6.442-16.518zM466.385 76.828l14.949 9.405h-14.949zm-387.136.114h15.486v9.291H79.249zm179.982 138.45c.207 9.374 2.468 21.442 10.592 32.458-9.952-2.065-22.712-14.03-30.61-22.444 1.353-3.407 2.602-6.504 3.697-9.219zm-134.558-63.088v-49.553h16.518v49.553zm66.071 0v-49.553h16.518v49.553zm-120.786 0v-49.553h38.198v49.553zm87.75 0v-49.553h16.519v49.553zM96.49 217.488c.413-12.389-14.608-33.335-30.899-33.335-20.977 0-11.593-8.104-1.331-15.33H486V187.9l-254.312 12.285c-4.976 11.625-22.712 56.976-36.39 92.149l4.779 10.324-9.477 1.858c-3.49 9.033-11.5 29.69-14.856 38.414l3.645 9.797-8.26 2.953c-12.388 32.313-17.55 46.456-17.55 46.456H53.44S26 393.216 26 385.216c-.124-43.99 69.292-131.74 70.49-167.728zM223.78 102.75H486v49.553H223.78z" fill="white"/></svg>' },
-  vehicles:   { label: 'Транспорт',         color: '#00f0ff', icon: '<svg viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M469.71 234.6c-7.33-9.73-34.56-16.43-46.08-33.94s-20.95-55.43-50.27-70S288 112 256 112s-88 4-117.36 18.63s-38.75 52.52-50.27 70s-38.75 24.24-46.08 33.97S29.8 305.84 32.94 336s9 48 9 48h86c14.08 0 18.66-5.29 47.46-8c31.6-3 62.6-4 80.6-4s50 1 81.58 4c28.8 2.73 33.53 8 47.46 8h85s5.86-17.84 9-48s-2.04-91.67-9.33-101.4M400 384h56v16h-56zm-344 0h56v16H56z"/><path fill="currentColor" d="M364.47 309.16c-5.91-6.83-25.17-12.53-50.67-16.35S279 288 256.2 288s-33.17 1.64-57.61 4.81s-42.79 8.81-50.66 16.35C136.12 320.6 153.42 333.44 167 335c13.16 1.5 39.47.95 89.31.95s76.15.55 89.31-.95c13.56-1.65 29.62-13.6 18.85-25.84m67.1-66.11a3.23 3.23 0 0 0-3.1-3c-11.81-.42-23.8.42-45.07 6.69a93.9 93.9 0 0 0-30.08 15.06c-2.28 1.78-1.47 6.59 1.39 7.1a455 455 0 0 0 52.82 3.1c10.59 0 21.52-3 23.55-12.44a52.4 52.4 0 0 0 .49-16.51m-351.14 0a3.23 3.23 0 0 1 3.1-3c11.81-.42 23.8.42 45.07 6.69a93.9 93.9 0 0 1 30.08 15.06c2.28 1.78 1.47 6.59-1.39 7.1a455 455 0 0 1-52.82 3.1c-10.59 0-21.52-3-23.55-12.44a52.4 52.4 0 0 1-.49-16.51"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M432 192h16m-384 0h16m-2 19s46.35-12 178-12s178 12 178 12"/></svg>' },
-  events:     { label: 'Случайные события', color: '#ffd400', icon: '<svg viewBox="0 0 24 24"><polygon points="13,2 5,14 11,14 9,22 19,10 13,10" fill="white"/></svg>' },
-  eastereggs: { label: 'Пасхалки',          color: '#a259ff', icon: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="13" rx="6" ry="8" fill="white"/></svg>' },
-  underwater: { label: 'Подводный мир',     color: '#00b4d8', icon: '<svg viewBox="0 0 512 512"><g transform="translate(12.521728515625,-75.82608032226562)"><path d="M245 29v26h22V29h-22zM105 62.563v30.874l14-7V69.564l-14-7zm302 0-14 7v16.874l14 7V62.564zM137 69v18h90V69h-90zm148 0v18h90V69h-90zm-40 4v14h22V73h-22zm114 26.416v20.176c14.247 8.412 24.376 19.263 32.05 31.947 13.556 22.404 19.038 51.316 21.991 82.326 2.953 31.01 3.422 63.895 8.324 94.211 2.322 14.36 5.68 28.27 10.928 41.06 4.237-4.39 9.665-7.622 15.746-9.15-4.048-10.489-6.864-22.163-8.904-34.783-4.598-28.43-5.13-61.05-8.176-93.045-3.047-31.994-8.565-63.586-24.51-89.937-10.598-17.516-26-32.356-47.449-42.805zM128.922 105c-6.642 5.152-12.31 11.225-17.026 18-15.783 22.68-21.907 51.968-25.406 80.758-3.499 28.79-4.261 57.394-7.527 77.955-1.633 10.28-4.005 18.474-6.746 23.185-2.741 4.712-4.482 5.932-8.604 6.11-5.089.219-8.12-.96-10.912-3.225-2.792-2.266-5.358-6.06-7.369-11.437-4.021-10.754-5.363-27.23-4.809-43.99.772-23.314 4.797-46.823 7.2-59.143 3.026-.782 5.619-2.307 7.789-3.879 3.577-2.59 6.449-5.698 8.924-8.719 4.949-6.041 8.32-12.072 8.32-12.072l-15.674-8.85s-2.819 4.933-6.572 9.514c-1.877 2.29-3.984 4.411-5.555 5.549-.605.438-.917.555-1.203.681-.235-.193-.486-.373-.938-.937-1.192-1.491-2.645-4.064-3.832-6.742-2.373-5.356-3.763-10.803-3.763-10.803l-17.463 4.361s1.632 6.654 4.77 13.735c1.568 3.54 3.493 7.268 6.234 10.693a32.14 32.14 0 0 0 1.69 1.934c-2.456 12.196-7.052 37.955-7.917 64.082-.594 17.958.391 36.053 5.94 50.89 2.774 7.419 6.803 14.173 12.886 19.11 6.084 4.936 14.21 7.612 23.028 7.232 10.16-.437 18.631-6.864 23.388-15.04 4.757-8.178 7.17-18.114 8.965-29.415 3.59-22.601 4.258-50.96 7.617-78.607 3.36-27.648 9.525-54.272 22.315-72.649 6.733-9.674 15.051-17.384 26.328-22.318V105h-24.078zM171 105v30.818a104.29 104.29 0 0 1 13-.818c4.354 0 8.708.278 13 .818V105h-26zm144 0v30.818a104.29 104.29 0 0 1 13-.818c4.354 0 8.708.278 13 .818V105h-26zm-131 48c-27.5 0-55 13-55 39v23h110v-23c0-26-27.5-39-55-39zm144 0c-27.5 0-55 13-55 39v23h110v-23c0-26-27.5-39-55-39zm-199 80v30h254v-30H129zm0 48v62h110v-62H129zm144 0v62h110v-62H273zm-144 80v30h254v-30H129zm327 16c-8.39 0-15 6.61-15 15s6.61 15 15 15 15-6.61 15-15-6.61-15-15-15zm-327 32v78h110v-78H129zm144 0v78h110v-78H273z" fill="white"/></g></svg>' },
-  activities: { label: 'Активности',        color: '#8bc34a', icon: '<svg viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M467.51 248.83c-18.4-83.18-45.69-136.24-89.43-149.17A91.5 91.5 0 0 0 352 96c-26.89 0-48.11 16-96 16s-69.15-16-96-16a99 99 0 0 0-27.2 3.66C89 112.59 61.94 165.7 43.33 248.83c-19 84.91-15.56 152 21.58 164.88c26 9 49.25-9.61 71.27-37c25-31.2 55.79-40.8 119.82-40.8s93.62 9.6 118.66 40.8c22 27.41 46.11 45.79 71.42 37.16c41.02-14.01 40.44-79.13 21.43-165.04Z"/><circle cx="292" cy="224" r="20" fill="currentColor"/><path fill="currentColor" d="M336 288a20 20 0 1 1 20-19.95A20 20 0 0 1 336 288"/><circle cx="336" cy="180" r="20" fill="currentColor"/><circle cx="380" cy="224" r="20" fill="currentColor"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M160 176v96m48-48h-96"/></svg>' },
+  weapons:    { get label() { return t('cat.weapons'); },            color: '#ff007f', icon: '<svg viewBox="0 0 512 512"><path d="M55.505 435.172h91.88v-16.518h-91.88zm265.317-173.437v-49.326l16.518-.795v66.639H218.618c2.158-5.162 4.316-11.356 6.442-16.518zM466.385 76.828l14.949 9.405h-14.949zm-387.136.114h15.486v9.291H79.249zm179.982 138.45c.207 9.374 2.468 21.442 10.592 32.458-9.952-2.065-22.712-14.03-30.61-22.444 1.353-3.407 2.602-6.504 3.697-9.219zm-134.558-63.088v-49.553h16.518v49.553zm66.071 0v-49.553h16.518v49.553zm-120.786 0v-49.553h38.198v49.553zm87.75 0v-49.553h16.519v49.553zM96.49 217.488c.413-12.389-14.608-33.335-30.899-33.335-20.977 0-11.593-8.104-1.331-15.33H486V187.9l-254.312 12.285c-4.976 11.625-22.712 56.976-36.39 92.149l4.779 10.324-9.477 1.858c-3.49 9.033-11.5 29.69-14.856 38.414l3.645 9.797-8.26 2.953c-12.388 32.313-17.55 46.456-17.55 46.456H53.44S26 393.216 26 385.216c-.124-43.99 69.292-131.74 70.49-167.728zM223.78 102.75H486v49.553H223.78z" fill="white"/></svg>' },
+  vehicles:   { get label() { return t('cat.vehicles'); },         color: '#00f0ff', icon: '<svg viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M469.71 234.6c-7.33-9.73-34.56-16.43-46.08-33.94s-20.95-55.43-50.27-70S288 112 256 112s-88 4-117.36 18.63s-38.75 52.52-50.27 70s-38.75 24.24-46.08 33.97S29.8 305.84 32.94 336s9 48 9 48h86c14.08 0 18.66-5.29 47.46-8c31.6-3 62.6-4 80.6-4s50 1 81.58 4c28.8 2.73 33.53 8 47.46 8h85s5.86-17.84 9-48s-2.04-91.67-9.33-101.4M400 384h56v16h-56zm-344 0h56v16H56z"/><path fill="currentColor" d="M364.47 309.16c-5.91-6.83-25.17-12.53-50.67-16.35S279 288 256.2 288s-33.17 1.64-57.61 4.81s-42.79 8.81-50.66 16.35C136.12 320.6 153.42 333.44 167 335c13.16 1.5 39.47.95 89.31.95s76.15.55 89.31-.95c13.56-1.65 29.62-13.6 18.85-25.84m67.1-66.11a3.23 3.23 0 0 0-3.1-3c-11.81-.42-23.8.42-45.07 6.69a93.9 93.9 0 0 0-30.08 15.06c-2.28 1.78-1.47 6.59 1.39 7.1a455 455 0 0 0 52.82 3.1c10.59 0 21.52-3 23.55-12.44a52.4 52.4 0 0 0 .49-16.51m-351.14 0a3.23 3.23 0 0 1 3.1-3c11.81-.42 23.8.42 45.07 6.69a93.9 93.9 0 0 1 30.08 15.06c2.28 1.78 1.47 6.59-1.39 7.1a455 455 0 0 1-52.82 3.1c-10.59 0-21.52-3-23.55-12.44a52.4 52.4 0 0 1-.49-16.51"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M432 192h16m-384 0h16m-2 19s46.35-12 178-12s178 12 178 12"/></svg>' },
+  events:     { get label() { return t('cat.events'); }, color: '#ffd400', icon: '<svg viewBox="0 0 24 24"><polygon points="13,2 5,14 11,14 9,22 19,10 13,10" fill="white"/></svg>' },
+  eastereggs: { get label() { return t('cat.eastereggs'); },          color: '#a259ff', icon: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="13" rx="6" ry="8" fill="white"/></svg>' },
+  underwater: { get label() { return t('cat.underwater'); },     color: '#00b4d8', icon: '<svg viewBox="0 0 512 512"><g transform="translate(12.521728515625,-75.82608032226562)"><path d="M245 29v26h22V29h-22zM105 62.563v30.874l14-7V69.564l-14-7zm302 0-14 7v16.874l14 7V62.564zM137 69v18h90V69h-90zm148 0v18h90V69h-90zm-40 4v14h22V73h-22zm114 26.416v20.176c14.247 8.412 24.376 19.263 32.05 31.947 13.556 22.404 19.038 51.316 21.991 82.326 2.953 31.01 3.422 63.895 8.324 94.211 2.322 14.36 5.68 28.27 10.928 41.06 4.237-4.39 9.665-7.622 15.746-9.15-4.048-10.489-6.864-22.163-8.904-34.783-4.598-28.43-5.13-61.05-8.176-93.045-3.047-31.994-8.565-63.586-24.51-89.937-10.598-17.516-26-32.356-47.449-42.805zM128.922 105c-6.642 5.152-12.31 11.225-17.026 18-15.783 22.68-21.907 51.968-25.406 80.758-3.499 28.79-4.261 57.394-7.527 77.955-1.633 10.28-4.005 18.474-6.746 23.185-2.741 4.712-4.482 5.932-8.604 6.11-5.089.219-8.12-.96-10.912-3.225-2.792-2.266-5.358-6.06-7.369-11.437-4.021-10.754-5.363-27.23-4.809-43.99.772-23.314 4.797-46.823 7.2-59.143 3.026-.782 5.619-2.307 7.789-3.879 3.577-2.59 6.449-5.698 8.924-8.719 4.949-6.041 8.32-12.072 8.32-12.072l-15.674-8.85s-2.819 4.933-6.572 9.514c-1.877 2.29-3.984 4.411-5.555 5.549-.605.438-.917.555-1.203.681-.235-.193-.486-.373-.938-.937-1.192-1.491-2.645-4.064-3.832-6.742-2.373-5.356-3.763-10.803-3.763-10.803l-17.463 4.361s1.632 6.654 4.77 13.735c1.568 3.54 3.493 7.268 6.234 10.693a32.14 32.14 0 0 0 1.69 1.934c-2.456 12.196-7.052 37.955-7.917 64.082-.594 17.958.391 36.053 5.94 50.89 2.774 7.419 6.803 14.173 12.886 19.11 6.084 4.936 14.21 7.612 23.028 7.232 10.16-.437 18.631-6.864 23.388-15.04 4.757-8.178 7.17-18.114 8.965-29.415 3.59-22.601 4.258-50.96 7.617-78.607 3.36-27.648 9.525-54.272 22.315-72.649 6.733-9.674 15.051-17.384 26.328-22.318V105h-24.078zM171 105v30.818a104.29 104.29 0 0 1 13-.818c4.354 0 8.708.278 13 .818V105h-26zm144 0v30.818a104.29 104.29 0 0 1 13-.818c4.354 0 8.708.278 13 .818V105h-26zm-131 48c-27.5 0-55 13-55 39v23h110v-23c0-26-27.5-39-55-39zm144 0c-27.5 0-55 13-55 39v23h110v-23c0-26-27.5-39-55-39zm-199 80v30h254v-30H129zm0 48v62h110v-62H129zm144 0v62h110v-62H273zm-144 80v30h254v-30H129zm327 16c-8.39 0-15 6.61-15 15s6.61 15 15 15 15-6.61 15-15-6.61-15-15-15zm-327 32v78h110v-78H129zm144 0v78h110v-78H273z" fill="white"/></g></svg>' },
+  activities: { get label() { return t('cat.activities'); },        color: '#8bc34a', icon: '<svg viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M467.51 248.83c-18.4-83.18-45.69-136.24-89.43-149.17A91.5 91.5 0 0 0 352 96c-26.89 0-48.11 16-96 16s-69.15-16-96-16a99 99 0 0 0-27.2 3.66C89 112.59 61.94 165.7 43.33 248.83c-19 84.91-15.56 152 21.58 164.88c26 9 49.25-9.61 71.27-37c25-31.2 55.79-40.8 119.82-40.8s93.62 9.6 118.66 40.8c22 27.41 46.11 45.79 71.42 37.16c41.02-14.01 40.44-79.13 21.43-165.04Z"/><circle cx="292" cy="224" r="20" fill="currentColor"/><path fill="currentColor" d="M336 288a20 20 0 1 1 20-19.95A20 20 0 0 1 336 288"/><circle cx="336" cy="180" r="20" fill="currentColor"/><circle cx="380" cy="224" r="20" fill="currentColor"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M160 176v96m48-48h-96"/></svg>' },
 };
 
 const RARITY = {
-  common: { label: 'Обычная' },
-  rare:   { label: 'Редкая' },
-  unique: { label: 'Уникальная' },
+  common: { get label() { return t('rarity.common'); } },
+  rare:   { get label() { return t('rarity.rare'); } },
+  unique: { get label() { return t('rarity.unique'); } },
 };
 
 // Известные тэги условий доступности точки — если встретится тэг не из
 // этого списка, просто покажем его как есть (без перевода на русский).
-const CONDITION_LABELS = {
-  'night': 'Ночь',
-  'rain': 'Дождь',
-  'requires-crowbar': 'Нужен лом',
-  'requires-tool': 'Нужен инструмент',
-  'high-wanted-risk': 'Высокий розыск',
-  'underwater': 'Под водой',
-  'daytime-only': 'Только днём',
-};
 function conditionLabel(tag) {
-  // hasOwnProperty, а не просто CONDITION_LABELS[tag]: иначе тег вроде
-  // "constructor" вернул бы не строку, а встроенную функцию объекта.
-  return Object.prototype.hasOwnProperty.call(CONDITION_LABELS, tag) ? CONDITION_LABELS[tag] : tag;
+  // Ключ 'cond.<тег>' ищется в словаре; если перевода нет — показываем тег как есть.
+  const key = 'cond.' + tag;
+  const label = t(key);
+  return label === key ? tag : label;
 }
 
 /* ---------------------------------------------------------
@@ -215,6 +209,16 @@ function createIcon(location) {
   });
 }
 
+// Название и описание на выбранном языке; если перевода в базе нет — русский оригинал.
+function locName(loc) {
+  const l = window.I18N.getLang();
+  return (loc.i18n && loc.i18n[l] && loc.i18n[l].name) || loc.name;
+}
+function locDesc(loc) {
+  const l = window.I18N.getLang();
+  return (loc.i18n && loc.i18n[l] && loc.i18n[l].description) || loc.description;
+}
+
 function buildPopupHtml(location) {
   const cat = CATEGORIES[location.category];
   const isFound = foundIds.has(location.id);
@@ -223,7 +227,7 @@ function buildPopupHtml(location) {
   const images = getImages(location);
   const safeId = escapeHtml(location.id);
   const imageHtml = images.length
-    ? `<div class="leo-popup-img-wrap"><img src="${escapeHtml(images[0])}" alt="${escapeHtml(location.name)}" class="leo-popup-img" loading="lazy" onerror="this.closest('.leo-popup-img-wrap').style.display='none'"></div>`
+    ? `<div class="leo-popup-img-wrap"><img src="${escapeHtml(images[0])}" alt="${escapeHtml(locName(location))}" class="leo-popup-img" loading="lazy" onerror="this.closest('.leo-popup-img-wrap').style.display='none'"></div>`
     : '';
 
   const rarityHtml = rarity !== 'common'
@@ -236,7 +240,7 @@ function buildPopupHtml(location) {
 
   const unverifiedHtml = location.verified === false
     ? `<div class="leo-popup-unverified">
-         ⏳ Ожидает проверки — координаты могут быть неточными
+         ${t('popup.unverified')}
          ${isAdminMode ? `<button class="leo-popup-approve-btn" data-loc-id="${safeId}">✔ Одобрить</button>` : ''}
        </div>`
     : '';
@@ -248,14 +252,14 @@ function buildPopupHtml(location) {
       <div class="leo-popup-body">
         ${unverifiedHtml}
         <div class="leo-popup-category">${cat.icon} ${cat.label.toUpperCase()}${rarityHtml}</div>
-        <h3 class="leo-popup-title">${escapeHtml(location.name)}</h3>
+        <h3 class="leo-popup-title">${escapeHtml(locName(location))}</h3>
         ${tagsHtml}
-        <p class="leo-popup-desc">${escapeHtml(location.description)}</p>
+        <p class="leo-popup-desc">${escapeHtml(locDesc(location))}</p>
         <div class="leo-popup-actions">
           <button class="leo-popup-btn${isFound ? ' is-active' : ''}" data-loc-id="${safeId}">
-            ${isFound ? '✔ Отмечено как найденное' : 'Отметить как найденное'}
+            ${isFound ? t('popup.found') : t('popup.markFound')}
           </button>
-          <button class="leo-popup-share-btn" data-loc-id="${safeId}" title="Скопировать ссылку на находку" aria-label="Поделиться этой точкой">🔗</button>
+          <button class="leo-popup-share-btn" data-loc-id="${safeId}" title="${escapeHtml(t('popup.share'))}" aria-label="${escapeHtml(t('popup.shareAria'))}">🔗</button>
         </div>
         ${isAdminMode ? `
           <div style="display:flex; gap:6px; margin-top:8px;">
@@ -627,7 +631,7 @@ function shareLocation(id, btnEl) {
   if (!entry) return;
 
   const url = `${location.origin}${location.pathname}#${id}`;
-  const title = `THE VICE MAP — ${entry.data.name}`;
+  const title = `THE VICE MAP — ${locName(entry.data)}`;
 
   if (navigator.share) {
     navigator.share({ title, url }).catch(() => {
@@ -647,10 +651,10 @@ function shareLocation(id, btnEl) {
 
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(showCopied).catch(() => {
-      prompt('Скопируйте ссылку вручную:', url);
+      prompt(t('share.manual'), url);
     });
   } else {
-    prompt('Скопируйте ссылку вручную:', url);
+    prompt(t('share.manual'), url);
   }
 }
 
@@ -700,7 +704,7 @@ function updateProgress() {
 }
 
 document.getElementById('resetBtn').addEventListener('click', () => {
-  if (!confirm('Сбросить все отметки «найдено»?')) return;
+  if (!confirm(t('progress.confirm'))) return;
   foundIds.clear();
   saveFoundSet(foundIds);
   locations.forEach(loc => markerIndex[loc.id].marker.setIcon(createIcon(loc)));
@@ -816,7 +820,7 @@ function applySearchFilter() {
 
   locations.forEach(loc => {
     const { marker } = markerIndex[loc.id];
-    const matchesQuery = query === '' || loc.name.toLowerCase().includes(query);
+    const matchesQuery = query === '' || loc.name.toLowerCase().includes(query) || locName(loc).toLowerCase().includes(query);
     const categoryActive = activeCategories.has(loc.category);
     const verifiedOk = loc.verified !== false || showUnverified;
     const shouldShow = matchesQuery && categoryActive && verifiedOk;
@@ -926,6 +930,10 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // занята под её собственный внутренний числовой id), поэтому здесь
 // переводим формат строки из базы в тот же вид объекта, который уже
 // использует весь остальной код (renderMarkers, buildPopupHtml и т.д.).
+function cleanText(v, max) {
+  return v == null ? '' : String(v).trim().slice(0, max);
+}
+
 function rowToLocation(row) {
   if (!row) return null;
   const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
@@ -944,7 +952,11 @@ function rowToLocation(row) {
 
   return {
     id,
-    name: String(row.name == null ? '' : row.name).trim().slice(0, 120) || 'Без названия',
+    name: String(row.name == null ? '' : row.name).trim().slice(0, 120) || t('untitled'),
+    i18n: {
+      en: { name: cleanText(row.name_en, 120), description: cleanText(row.description_en, 2000) },
+      es: { name: cleanText(row.name_es, 120), description: cleanText(row.description_es, 2000) },
+    },
     category: row.category,
     x,
     y,
@@ -958,7 +970,7 @@ function rowToLocation(row) {
   };
 }
 
-db.from('locations').select('loc_id,name,category,x,y,description,images,rarity,conditions,verified')
+db.from('locations').select('loc_id,name,category,x,y,description,images,rarity,conditions,verified,name_en,description_en,name_es,description_es')
   .then(({ data, error }) => {
     if (error) throw error;
     locations = data.map(rowToLocation).filter(Boolean);
@@ -973,7 +985,7 @@ db.from('locations').select('loc_id,name,category,x,y,description,images,rarity,
   })
   .catch(err => {
     console.error('Не удалось загрузить точки из Supabase:', err);
-    alert('Не удалось загрузить список точек.');
+    alert(t('load.error'));
   });
 
 /* ---------------------------------------------------------
@@ -1395,7 +1407,7 @@ function renderTurnstile() {
   turnstileWidgetId = window.turnstile.render('#turnstileBox', {
     sitekey: TURNSTILE_SITE_KEY,
     theme: 'dark',
-    language: 'ru',
+    language: window.I18N.getLang(),
   });
 }
 
@@ -1422,7 +1434,7 @@ window.addEventListener('keydown', (e) => {
 pickLocationBtn.addEventListener('click', () => {
   closeSuggestModal();
   pickLocationBtn.classList.add('is-picking');
-  pickLocationBtn.textContent = '🗺 Кликните по карте…';
+  pickLocationBtn.textContent = t('form.picking');
 
   map.once('click', (e) => {
     const point = map.project(e.latlng, mapConfig.tileMaxZoom);
@@ -1430,7 +1442,7 @@ pickLocationBtn.addEventListener('click', () => {
     document.getElementById('sY').value = Math.round(point.y);
 
     pickLocationBtn.classList.remove('is-picking');
-    pickLocationBtn.textContent = '🗺 Указать точку на карте';
+    pickLocationBtn.textContent = t('form.pick');
     openSuggestModal();
   });
 });
@@ -1445,7 +1457,7 @@ suggestForm.addEventListener('submit', async (e) => {
   const botField = suggestForm.querySelector('[name="bot-field"]').value;
   if (botField) {
     // Бот не должен понять, что его поймали — просто "успешно" закрываем форму
-    suggestStatus.textContent = 'Спасибо! Заявка отправлена на проверку.';
+    suggestStatus.textContent = t('form.thanks');
     suggestStatus.className = 'suggest-status is-success';
     suggestStatus.hidden = false;
     suggestForm.reset();
@@ -1458,7 +1470,7 @@ suggestForm.addEventListener('submit', async (e) => {
     turnstileToken = window.turnstile && turnstileWidgetId !== null
       ? window.turnstile.getResponse(turnstileWidgetId) : '';
     if (!turnstileToken) {
-      suggestStatus.textContent = '❌ Подтвердите, что вы не робот (галочка выше).';
+      suggestStatus.textContent = t('form.captcha');
       suggestStatus.className = 'suggest-status is-error';
       suggestStatus.hidden = false;
       return;
@@ -1479,7 +1491,7 @@ suggestForm.addEventListener('submit', async (e) => {
 
   if (Number.isNaN(x) || Number.isNaN(y)) {
     suggestSubmitBtn.disabled = false;
-    suggestStatus.textContent = '❌ Сначала укажите точку на карте.';
+    suggestStatus.textContent = t('form.noPoint');
     suggestStatus.className = 'suggest-status is-error';
     suggestStatus.hidden = false;
     return;
@@ -1493,7 +1505,7 @@ suggestForm.addEventListener('submit', async (e) => {
   // в images. Если это упадёт — не отправляем заявку молча без фото,
   // а честно сообщаем и даём попробовать ещё раз.
   if (photoFile) {
-    suggestStatus.textContent = 'Сжимаю и загружаю фото…';
+    suggestStatus.textContent = t('form.uploading');
     suggestStatus.className = 'suggest-status is-success';
     suggestStatus.hidden = false;
 
@@ -1512,14 +1524,14 @@ suggestForm.addEventListener('submit', async (e) => {
     } catch (err) {
       suggestSubmitBtn.disabled = false;
       console.error('Не удалось загрузить фото:', err);
-      suggestStatus.textContent = '❌ Не удалось загрузить фото. Попробуйте другое или отправьте без фото.';
+      suggestStatus.textContent = t('form.photoFail');
       suggestStatus.className = 'suggest-status is-error';
       suggestStatus.hidden = false;
       return;
     }
   }
 
-  suggestStatus.textContent = 'Отправляю заявку…';
+  suggestStatus.textContent = t('form.sending');
 
   // verified: false — заявка сразу попадает в общую очередь модерации
   // (ту же, что видит режим картографа через тогл "Показывать
@@ -1547,13 +1559,13 @@ suggestForm.addEventListener('submit', async (e) => {
 
       if (error) {
         console.error('Не удалось отправить заявку:', error);
-        suggestStatus.textContent = '❌ Не получилось отправить. Попробуйте ещё раз.';
+        suggestStatus.textContent = t('form.sendFail');
         suggestStatus.className = 'suggest-status is-error';
         suggestStatus.hidden = false;
         return;
       }
 
-      suggestStatus.textContent = 'Спасибо! Заявка отправлена на проверку.';
+      suggestStatus.textContent = t('form.thanks');
       suggestStatus.className = 'suggest-status is-success';
       suggestStatus.hidden = false;
       sPhotoPreview.hidden = true;
@@ -1563,8 +1575,30 @@ suggestForm.addEventListener('submit', async (e) => {
     .catch((err) => {
       suggestSubmitBtn.disabled = false;
       console.error('Ошибка сети при отправке заявки:', err);
-      suggestStatus.textContent = '❌ Не получилось отправить. Попробуйте ещё раз.';
+      suggestStatus.textContent = t('form.sendFail');
       suggestStatus.className = 'suggest-status is-error';
       suggestStatus.hidden = false;
     });
 });
+
+
+/* ---------------------------------------------------------
+   Смена языка: перерисовываем всё, что строится из JS
+--------------------------------------------------------- */
+function relabelDynamicUi() {
+  // подписи слоёв (состояние чекбоксов не трогаем)
+  filterListEl.querySelectorAll('.filter-item').forEach((el) => {
+    const key = el.dataset.category;
+    const nameEl = el.querySelector('.filter-name');
+    if (nameEl && CATEGORIES[key]) nameEl.innerHTML = `${CATEGORIES[key].icon} ${CATEGORIES[key].label}`;
+  });
+  // категории в форме заявки
+  const icons = { weapons: '🔫', vehicles: '🚗', events: '⚡', eastereggs: '🥚', underwater: '🤿', activities: '🎯' };
+  document.querySelectorAll('#sCategory option').forEach((o) => {
+    if (CATEGORIES[o.value]) o.textContent = `${icons[o.value]} ${CATEGORIES[o.value].label}`;
+  });
+  if (typeof refreshAllPopups === 'function') refreshAllPopups();
+  applySearchFilter();
+}
+document.addEventListener('langchange', relabelDynamicUi);
+document.addEventListener('DOMContentLoaded', relabelDynamicUi);

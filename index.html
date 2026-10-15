@@ -59,7 +59,7 @@
 <body>
 
   <!-- ============ КНОПКА-ГАМБУРГЕР (только мобильные) ============ -->
-  <button id="hamburgerBtn" class="hamburger" aria-label="Открыть меню" aria-expanded="false">
+  <button id="hamburgerBtn" class="hamburger" aria-label="Открыть меню" data-i18n-aria="menu.open" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
 
@@ -76,7 +76,12 @@
         <h1 class="brand-title">
           THE VICE<span class="brand-title-accent">MAP</span>
         </h1>
-        <p class="brand-subtitle">Явные координаты. Никаких секретов.</p>
+        <p class="brand-subtitle" data-i18n="brand.subtitle">Явные координаты. Никаких секретов.</p>
+        <div class="lang-switch" role="group" aria-label="Язык" data-i18n-aria="lang.label">
+          <button type="button" class="lang-btn" data-lang="ru">RU</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="es">ES</button>
+        </div>
       </header>
 
       <!-- Поиск -->
@@ -89,18 +94,18 @@
           id="searchInput"
           class="search-box-input"
           type="text"
-          placeholder="Найти точку на карте…"
+          placeholder="Найти точку на карте…" data-i18n-ph="search.placeholder"
           autocomplete="off"
         >
       </div>
 
       <!-- Фильтры категорий -->
-      <nav class="filters" aria-label="Фильтры категорий">
+      <nav class="filters" aria-label="Фильтры категорий" data-i18n-aria="filters.aria">
         <div class="filters-head">
-          <p class="filters-label">Слои карты</p>
+          <p class="filters-label" data-i18n="filters.label">Слои карты</p>
           <div class="filters-quick">
-            <button type="button" id="selectAllBtn" class="filters-quick-btn">Выбрать всё</button>
-            <button type="button" id="clearAllBtn" class="filters-quick-btn">Сбросить</button>
+            <button type="button" id="selectAllBtn" class="filters-quick-btn" data-i18n="filters.all">Выбрать всё</button>
+            <button type="button" id="clearAllBtn" class="filters-quick-btn" data-i18n="filters.none">Сбросить</button>
           </div>
         </div>
         <div id="filterList" class="filter-list">
@@ -109,38 +114,35 @@
 
         <label class="toggle-row">
           <input type="checkbox" id="showUnverifiedToggle">
-          Показывать неподтверждённые точки (бета)
+          <span data-i18n="filters.unverified">Показывать неподтверждённые точки (бета)</span>
         </label>
       </nav>
 
       <!-- Прогресс / статистика -->
       <div class="progress-box">
         <div class="progress-box-row">
-          <span>Отмечено</span>
+          <span data-i18n="progress.found">Отмечено</span>
           <span id="progressText">0 / 0</span>
         </div>
         <div class="progress-track">
           <div id="progressFill" class="progress-fill"></div>
         </div>
-        <button id="resetBtn" class="reset-btn">Сбросить отметки</button>
+        <button id="resetBtn" class="reset-btn" data-i18n="progress.reset">Сбросить отметки</button>
       </div>
 
       <!-- Отправка находки от пользователя -->
-      <button id="suggestBtn" class="suggest-btn">
-        📍 Предложить находку
-      </button>
+      <button id="suggestBtn" class="suggest-btn" data-i18n="suggest.btn">📍 Предложить находку</button>
 
     </div>
 
     <footer class="sidebar-footer">
       <span class="pulse-dot"></span>
       <span>
-        Неофициальный фан-проект. Не связан с Rockstar Games,
-        Take-Two Interactive и не одобрен ими.
+        <span data-i18n="footer.disclaimer">Неофициальный фан-проект. Не связан с Rockstar Games, Take-Two Interactive и не одобрен ими.</span>
         <br>
-        <a href="/about" style="color: var(--text-low); text-decoration: underline;">О проекте</a>
+        <a href="/about" style="color: var(--text-low); text-decoration: underline;" data-i18n="footer.about">О проекте</a>
         ·
-        <a href="/privacy" style="color: var(--text-low); text-decoration: underline;">Конфиденциальность</a>
+        <a href="/privacy" style="color: var(--text-low); text-decoration: underline;" data-i18n="footer.privacy">Конфиденциальность</a>
       </span>
     </footer>
   </aside>
@@ -169,10 +171,10 @@
   <div id="suggestOverlay" class="modal-overlay"></div>
 
   <div id="suggestModal" class="modal-card" role="dialog" aria-modal="true" aria-labelledby="suggestTitle">
-    <button id="suggestCloseBtn" class="modal-close" aria-label="Закрыть форму">✕</button>
+    <button id="suggestCloseBtn" class="modal-close" aria-label="Закрыть форму" data-i18n-aria="modal.closeAria">✕</button>
 
-    <h2 id="suggestTitle" class="modal-title">Предложить находку</h2>
-    <p class="modal-subtitle">Нашли что-то на карте Leonida? Опишите — после проверки добавим точку на карту.</p>
+    <h2 id="suggestTitle" class="modal-title" data-i18n="modal.title">Предложить находку</h2>
+    <p class="modal-subtitle" data-i18n="modal.subtitle">Нашли что-то на карте Leonida? Опишите — после проверки добавим точку на карту.</p>
 
     <form id="suggestForm">
       <!-- Honeypot-поле для защиты от спам-ботов: обычные пользователи
@@ -182,10 +184,10 @@
         <label>Оставьте пустым: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
       </p>
 
-      <label class="form-label" for="sName">Название</label>
-      <input id="sName" name="name" class="form-input" type="text" required maxlength="80" placeholder="Например: Тайник с дробовиком">
+      <label class="form-label" for="sName" data-i18n="form.name">Название</label>
+      <input id="sName" name="name" class="form-input" type="text" required maxlength="80" placeholder="Например: Тайник с дробовиком" data-i18n-ph="form.name.ph">
 
-      <label class="form-label" for="sCategory">Категория</label>
+      <label class="form-label" for="sCategory" data-i18n="form.category">Категория</label>
       <select id="sCategory" name="category" class="form-input" required>
         <option value="weapons">🔫 Оружие</option>
         <option value="vehicles">🚗 Транспорт</option>
@@ -195,20 +197,20 @@
         <option value="activities">🎯 Активности</option>
       </select>
 
-      <label class="form-label" for="sDescription">Описание</label>
+      <label class="form-label" for="sDescription" data-i18n="form.desc">Описание</label>
       <textarea id="sDescription" name="description" class="form-input" rows="3" required maxlength="1000"
-        placeholder="Где находится, как добраться, особенности..."></textarea>
+        placeholder="Где находится, как добраться, особенности..." data-i18n-ph="form.desc.ph"></textarea>
 
-      <label class="form-label" for="sPhoto">Фото находки (необязательно, но сильно ускоряет проверку)</label>
+      <label class="form-label" for="sPhoto" data-i18n="form.photo">Фото находки (необязательно, но сильно ускоряет проверку)</label>
       <input id="sPhoto" name="photo" class="form-input" type="file" accept="image/*">
       <p id="sPhotoPreview" class="photo-preview" hidden></p>
 
-      <label class="form-label" for="sRarity">Насколько редкая находка? (необязательно)</label>
+      <label class="form-label" for="sRarity" data-i18n="form.rarity">Насколько редкая находка? (необязательно)</label>
       <select id="sRarity" name="rarity" class="form-input">
-        <option value="">Не уверен(а)</option>
-        <option value="common">Обычная — легко найти</option>
-        <option value="rare">Редкая — нужны условия</option>
-        <option value="unique">Уникальная — одна на карте</option>
+        <option value="" data-i18n="form.rarity.none">Не уверен(а)</option>
+        <option value="common" data-i18n="form.rarity.common">Обычная — легко найти</option>
+        <option value="rare" data-i18n="form.rarity.rare">Редкая — нужны условия</option>
+        <option value="unique" data-i18n="form.rarity.unique">Уникальная — одна на карте</option>
       </select>
 
       <div class="form-row">
@@ -221,15 +223,15 @@
           <input id="sY" name="y" class="form-input" type="number" placeholder="—" readonly>
         </div>
       </div>
-      <button type="button" id="pickLocationBtn" class="pick-btn">🗺 Указать точку на карте</button>
+      <button type="button" id="pickLocationBtn" class="pick-btn" data-i18n="form.pick">🗺 Указать точку на карте</button>
 
-      <label class="form-label" for="sContact">Контакт (необязательно)</label>
-      <input id="sContact" name="contact" class="form-input" type="text" maxlength="100" placeholder="Discord/почта, если хотите быть на связи">
+      <label class="form-label" for="sContact" data-i18n="form.contact">Контакт (необязательно)</label>
+      <input id="sContact" name="contact" class="form-input" type="text" maxlength="100" placeholder="Discord/почта, если хотите быть на связи" data-i18n-ph="form.contact.ph">
 
       <div id="turnstileBox" class="turnstile-box"></div>
 
       <div class="form-actions">
-        <button type="submit" id="suggestSubmitBtn" class="submit-btn">Отправить</button>
+        <button type="submit" id="suggestSubmitBtn" class="submit-btn" data-i18n="form.submit">Отправить</button>
       </div>
 
       <p id="suggestStatus" class="suggest-status" hidden></p>
@@ -271,6 +273,7 @@
   <!-- Supabase JS — клиент для базы данных, где теперь хранятся точки
        (вместо статичного locations.json) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 </body>
