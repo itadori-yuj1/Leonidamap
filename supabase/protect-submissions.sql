@@ -22,14 +22,10 @@ alter table public.locations add constraint locations_xy_check
 
 alter table public.locations drop constraint if exists locations_images_len_check;
 alter table public.locations add constraint locations_images_len_check
-  check (images is null or cardinality(images) <= 3) not valid;
+  check (images is null or jsonb_typeof(images) <> 'array' or jsonb_array_length(images) <= 3) not valid;
 
--- 2. Анонимный посетитель может добавлять ТОЛЬКО неподтверждённую заявку.
---    (иначе кто угодно мог бы прислать точку сразу с verified = true)
-drop policy if exists "anon insert unverified" on public.locations;
-create policy "anon insert unverified" on public.locations
-  for insert to anon
-  with check (verified = false);
+-- 2. Политика анонимной вставки (verified = false) уже существует:
+--    "Anyone can suggest unverified locations" — повторно не создаём.
 
 -- 3. Storage: bucket заявок — не больше 2 МБ, только jpeg/png
 update storage.buckets
