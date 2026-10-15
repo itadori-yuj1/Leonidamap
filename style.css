@@ -1132,3 +1132,5 @@ input[type="file"].form-input {
 }
 
 .static-page .disclaimer-box p:last-child { margin-bottom: 0; }
+
+.turnstile-box { margin: 14px 0 4px; min-height: 0; }

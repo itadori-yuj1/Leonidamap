@@ -1384,7 +1384,23 @@ sPhoto.addEventListener('change', () => {
   sPhotoPreview.hidden = false;
 });
 
+// Cloudflare Turnstile: публичный Site Key (секретный ключ хранится только на сервере).
+// Пока ключ пустой — капча не показывается и заявки идут по-старому.
+const TURNSTILE_SITE_KEY = '';
+let turnstileWidgetId = null;
+
+function renderTurnstile() {
+  if (!TURNSTILE_SITE_KEY || turnstileWidgetId !== null) return;
+  if (!window.turnstile) { setTimeout(renderTurnstile, 400); return; }
+  turnstileWidgetId = window.turnstile.render('#turnstileBox', {
+    sitekey: TURNSTILE_SITE_KEY,
+    theme: 'dark',
+    language: 'ru',
+  });
+}
+
 function openSuggestModal() {
+  renderTurnstile();
   suggestOverlay.classList.add('is-open');
   suggestModal.classList.add('is-open');
   if (window.innerWidth <= 860) setSidebarOpen(false);
@@ -1435,6 +1451,18 @@ suggestForm.addEventListener('submit', async (e) => {
     suggestForm.reset();
     setTimeout(closeSuggestModal, 1800);
     return;
+  }
+
+  let turnstileToken = null;
+  if (TURNSTILE_SITE_KEY) {
+    turnstileToken = window.turnstile && turnstileWidgetId !== null
+      ? window.turnstile.getResponse(turnstileWidgetId) : '';
+    if (!turnstileToken) {
+      suggestStatus.textContent = '❌ Подтвердите, что вы не робот (галочка выше).';
+      suggestStatus.className = 'suggest-status is-error';
+      suggestStatus.hidden = false;
+      return;
+    }
   }
 
   suggestSubmitBtn.disabled = true;
@@ -1496,12 +1524,26 @@ suggestForm.addEventListener('submit', async (e) => {
   // verified: false — заявка сразу попадает в общую очередь модерации
   // (ту же, что видит режим картографа через тогл "Показывать
   // неподтверждённые"), а не в отдельную панель Netlify Forms.
-  db.from('locations').insert([{
-    loc_id: locId, name, category, description, rarity, x, y, contact,
-    images, conditions: [], verified: false,
-  }])
+  const submission = turnstileToken
+    ? fetch(`${SUPABASE_URL}/functions/v1/submit-location`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ token: turnstileToken, loc_id: locId, name, category, description, rarity, x, y, contact, images }),
+      }).then(async (r) => ({ error: r.ok ? null : new Error(await r.text()) }))
+        .catch((error) => ({ error }))
+    : db.from('locations').insert([{
+        loc_id: locId, name, category, description, rarity, x, y, contact,
+        images, conditions: [], verified: false,
+      }]);
+
+  submission
     .then(({ error }) => {
       suggestSubmitBtn.disabled = false;
+      if (turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
 
       if (error) {
         console.error('Не удалось отправить заявку:', error);
