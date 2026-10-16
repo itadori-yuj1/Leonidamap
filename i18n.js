@@ -11,6 +11,7 @@
     ru: {
       'doc.title': 'THE VICE MAP — Интерактивная карта GTA VI: оружие, транспорт, пасхалки',
       'doc.desc': 'Неофициальная интерактивная карта Leonida (GTA VI): координаты оружия, транспорта, случайных событий и пасхалок. Отмечай найденное, ищи по названию.',
+      'page.back': '← Назад к карте',
       'menu.open': 'Открыть меню',
       'brand.subtitle': 'Явные координаты. Никаких секретов.',
       'search.placeholder': 'Найти точку на карте…',
@@ -69,6 +70,7 @@
     en: {
       'doc.title': 'THE VICE MAP — Interactive GTA VI Map: weapons, vehicles, easter eggs',
       'doc.desc': 'Unofficial interactive map of Leonida (GTA VI): coordinates of weapons, vehicles, random events and easter eggs. Track what you found, search by name.',
+      'page.back': '← Back to the map',
       'menu.open': 'Open menu',
       'brand.subtitle': 'Exact coordinates. No secrets.',
       'search.placeholder': 'Find a spot on the map…',
@@ -127,6 +129,7 @@
     es: {
       'doc.title': 'THE VICE MAP — Mapa interactivo de GTA VI: armas, vehículos, secretos',
       'doc.desc': 'Mapa interactivo no oficial de Leonida (GTA VI): coordenadas de armas, vehículos, eventos aleatorios y secretos. Marca lo que encuentres y busca por nombre.',
+      'page.back': '← Volver al mapa',
       'menu.open': 'Abrir menú',
       'brand.subtitle': 'Coordenadas exactas. Sin secretos.',
       'search.placeholder': 'Buscar un punto en el mapa…',
@@ -186,6 +189,7 @@
 
   const STORAGE_KEY = 'vicemap-lang';
   let lang = 'ru';
+  let STATIC_ORIG = null;
 
   function detect() {
     try {
@@ -202,9 +206,18 @@
 
   function apply() {
     document.documentElement.lang = lang;
-    document.title = t('doc.title');
+    const root = document.documentElement;
     const md = document.querySelector('meta[name="description"]');
-    if (md) md.setAttribute('content', t('doc.desc'));
+    if (root.classList.contains('static-page-html')) {
+      // статические страницы (О проекте, Конфиденциальность): заголовок берём из data-атрибутов
+      if (!STATIC_ORIG) STATIC_ORIG = { title: document.title, desc: md ? md.getAttribute('content') : '' };
+      const cap = lang.charAt(0).toUpperCase() + lang.slice(1);
+      document.title = root.dataset['title' + cap] || STATIC_ORIG.title;
+      if (md) md.setAttribute('content', root.dataset['desc' + cap] || STATIC_ORIG.desc);
+    } else {
+      document.title = t('doc.title');
+      if (md) md.setAttribute('content', t('doc.desc'));
+    }
     document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
     document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.setAttribute('placeholder', t(el.dataset.i18nPh)); });
     document.querySelectorAll('[data-i18n-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
