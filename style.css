@@ -1145,3 +1145,10 @@ input[type="file"].form-input {
 }
 .lang-btn:hover { color: var(--cyan, #00f0ff); border-color: var(--cyan, #00f0ff); }
 .lang-btn.is-active { color: #0f0f13; background: var(--cyan, #00f0ff); border-color: var(--cyan, #00f0ff); }
+
+/* Языковые блоки статических страниц */
+[data-lang-block] { display: none; }
+html[lang="ru"] [data-lang-block="ru"],
+html[lang="en"] [data-lang-block="en"],
+html[lang="es"] [data-lang-block="es"] { display: block; }
+.static-page .lang-switch { margin: 6px 0 18px; }

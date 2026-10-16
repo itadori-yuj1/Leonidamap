@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" class="static-page-html">
+<html lang="ru" class="static-page-html" data-title-en="Privacy Policy — THE VICE MAP" data-title-es="Política de privacidad — THE VICE MAP" data-desc-en="What data THE VICE MAP collects and how it is used." data-desc-es="Qué datos recoge THE VICE MAP y cómo se utilizan.">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,23 +14,33 @@
 </head>
 <body class="static-page-body">
 <main class="static-page">
-  <a href="/" class="back-link">← Назад к карте</a>
+  <a href="/" class="back-link" data-i18n="page.back">← Назад к карте</a>
+  <div class="lang-switch" role="group" aria-label="Language">
+    <button type="button" class="lang-btn" data-lang="ru">RU</button>
+    <button type="button" class="lang-btn" data-lang="en">EN</button>
+    <button type="button" class="lang-btn" data-lang="es">ES</button>
+  </div>
 
+  <div data-lang-block="ru">
   <h1 class="page-title">Политика конфиденциальности</h1>
-  <p class="page-updated">Действует с сентября 2026 года</p>
+  <p class="page-updated">Обновлено в октябре 2026 года</p>
 
   <p>Здесь простым языком описано, какие данные собирает THE VICE MAP и зачем. Никакого юридического жаргона — только то, что реально происходит на сайте.</p>
 
   <h2>Что хранится в вашем браузере (не отправляется на сервер)</h2>
-  <p>Отметки «найдено» на точках карты сохраняются локально в вашем браузере (<strong>localStorage</strong>) и никуда не передаются. Это значит, что прогресс виден только на этом устройстве и в этом браузере — если откроете сайт с другого устройства, отметки начнутся заново.</p>
+  <p>Отметки «найдено» на точках карты и выбранный язык сохраняются локально в вашем браузере (<strong>localStorage</strong>) и никуда не передаются. Это значит, что прогресс виден только на этом устройстве и в этом браузере — если откроете сайт с другого устройства, отметки начнутся заново.</p>
 
   <h2>Данные из формы «Предложить находку»</h2>
   <p>Если вы отправляете находку через форму, в базу данных сохраняются:</p>
   <ul>
     <li>Название, категория, описание и координаты находки</li>
+    <li>Фото — <strong>только если вы сами его приложили</strong>; перед отправкой оно сжимается</li>
     <li>Контакт (email/Discord) — <strong>только если вы сами его указали</strong>, поле необязательное</li>
   </ul>
-  <p>Эти данные используются исключительно для проверки и добавления находки на карту. Если оставили контакт — можем написать, чтобы уточнить детали.</p>
+  <p>Эти данные используются исключительно для проверки и добавления находки на карту. Если оставили контакт — можем написать, чтобы уточнить детали. Текст новой заявки (включая контакт, если он указан) автоматически пересылается владельцу сайта в личное сообщение в Telegram — чтобы быстрее проверять заявки.</p>
+
+  <h2>Защита от спама</h2>
+  <p>Форма защищена сервисом <strong>Cloudflare Turnstile</strong>: он проверяет, что заявку отправляет человек, а не бот. Для этого Cloudflare может обрабатывать технические данные вашего браузера и IP-адрес.</p>
 
   <h2>Автоматический сбор технических данных</h2>
   <p>Как и почти любой современный сайт, THE VICE MAP использует два сервиса, которые автоматически собирают ограниченные технические данные:</p>
@@ -49,6 +59,88 @@
   <p>Сайт не предназначен для сбора данных о лицах младше 13 лет, и мы сознательно не запрашиваем никакую информацию, которая могла бы идентифицировать возраст посетителя.</p>
 
   <p style="margin-top: 40px;">Если есть вопросы по этой политике — напишите на <a href="mailto:contact@thevicemap.com">contact@thevicemap.com</a>.</p>
+  </div>
+
+  <div data-lang-block="en">
+  <h1 class="page-title">Privacy Policy</h1>
+  <p class="page-updated">Updated October 2026</p>
+
+  <p>This page explains in plain language what data THE VICE MAP collects and why. No legal jargon, only what actually happens on the site.</p>
+
+  <h2>What is stored in your browser (not sent to a server)</h2>
+  <p>Your "found" marks on map spots and your chosen language are saved locally in your browser (<strong>localStorage</strong>) and are not sent anywhere. This means your progress is visible only on this device and in this browser; if you open the site on another device, the marks start over.</p>
+
+  <h2>Data from the "Suggest a spot" form</h2>
+  <p>If you submit a spot through the form, the database stores:</p>
+  <ul>
+    <li>The name, category, description and coordinates of the spot</li>
+    <li>A photo, <strong>only if you attach one yourself</strong>; it is compressed before upload</li>
+    <li>A contact (email/Discord), <strong>only if you provide one yourself</strong>; the field is optional</li>
+  </ul>
+  <p>This data is used solely to review the spot and add it to the map. If you left a contact, we may write to you to clarify details. The text of each new submission (including the contact, if provided) is automatically forwarded to the site owner as a private Telegram message so that submissions can be reviewed faster.</p>
+
+  <h2>Spam protection</h2>
+  <p>The form is protected by <strong>Cloudflare Turnstile</strong>, which checks that a human, not a bot, is submitting. For this, Cloudflare may process technical data from your browser and your IP address.</p>
+
+  <h2>Automatic collection of technical data</h2>
+  <p>Like almost any modern website, THE VICE MAP uses two services that automatically collect limited technical data:</p>
+  <ul>
+    <li><strong>Sentry</strong>: if an error happens on the site, technical information about it (browser type, device, IP address, what exactly broke) is recorded automatically so it can be fixed.</li>
+    <li><strong>Cloudflare Web Analytics</strong>: counts visits and general statistics (country, device) without tracking cookies and without collecting data that could identify a specific visitor.</li>
+  </ul>
+
+  <h2>Advertising</h2>
+  <p>The site currently has no ads or advertising trackers. If that changes in the future, this page will be updated in advance.</p>
+
+  <h2>Data retention</h2>
+  <p>Data from the "Suggest a spot" form is stored in the project database (Supabase) with no time limit, like the coordinates of any other spot on the map. If you want your contact removed from a submission you already sent, write to <a href="mailto:contact@thevicemap.com">contact@thevicemap.com</a> and say which spot it concerns.</p>
+
+  <h2>Children</h2>
+  <p>The site is not intended to collect data from anyone under 13, and we knowingly do not ask for any information that could identify a visitor's age.</p>
+
+  <p style="margin-top: 40px;">If you have questions about this policy, write to <a href="mailto:contact@thevicemap.com">contact@thevicemap.com</a>.</p>
+  </div>
+
+  <div data-lang-block="es">
+  <h1 class="page-title">Política de privacidad</h1>
+  <p class="page-updated">Actualizada en octubre de 2026</p>
+
+  <p>Aquí se explica en lenguaje sencillo qué datos recoge THE VICE MAP y para qué. Sin jerga legal: solo lo que realmente ocurre en el sitio.</p>
+
+  <h2>Lo que se guarda en tu navegador (no se envía a ningún servidor)</h2>
+  <p>Las marcas de «encontrado» en los puntos del mapa y el idioma elegido se guardan localmente en tu navegador (<strong>localStorage</strong>) y no se envían a ninguna parte. Esto significa que tu progreso solo se ve en este dispositivo y en este navegador; si abres el sitio en otro dispositivo, las marcas empiezan de cero.</p>
+
+  <h2>Datos del formulario «Sugerir un hallazgo»</h2>
+  <p>Si envías un hallazgo mediante el formulario, en la base de datos se guardan:</p>
+  <ul>
+    <li>El nombre, la categoría, la descripción y las coordenadas del hallazgo</li>
+    <li>Una foto, <strong>solo si la adjuntas tú</strong>; se comprime antes de subirla</li>
+    <li>Un contacto (correo/Discord), <strong>solo si lo indicas tú</strong>; el campo es opcional</li>
+  </ul>
+  <p>Estos datos se usan únicamente para revisar el hallazgo y añadirlo al mapa. Si dejaste un contacto, podemos escribirte para aclarar detalles. El texto de cada nueva propuesta (incluido el contacto, si lo indicaste) se reenvía automáticamente al propietario del sitio como mensaje privado de Telegram para poder revisar las propuestas más rápido.</p>
+
+  <h2>Protección contra spam</h2>
+  <p>El formulario está protegido por <strong>Cloudflare Turnstile</strong>, que comprueba que quien envía es una persona y no un bot. Para ello, Cloudflare puede procesar datos técnicos de tu navegador y tu dirección IP.</p>
+
+  <h2>Recopilación automática de datos técnicos</h2>
+  <p>Como casi cualquier sitio web moderno, THE VICE MAP usa dos servicios que recogen automáticamente datos técnicos limitados:</p>
+  <ul>
+    <li><strong>Sentry</strong>: si ocurre un error en el sitio, se registra automáticamente información técnica sobre él (tipo de navegador, dispositivo, dirección IP, qué falló exactamente) para poder corregirlo.</li>
+    <li><strong>Cloudflare Web Analytics</strong>: cuenta las visitas y estadísticas generales (país, dispositivo) sin cookies de seguimiento y sin recopilar datos que permitan identificar a un visitante concreto.</li>
+  </ul>
+
+  <h2>Publicidad</h2>
+  <p>Por ahora el sitio no tiene anuncios ni rastreadores publicitarios. Si esto cambia en el futuro, esta página se actualizará con antelación.</p>
+
+  <h2>Conservación de los datos</h2>
+  <p>Los datos del formulario «Sugerir un hallazgo» se guardan en la base de datos del proyecto (Supabase) sin límite de tiempo, igual que las coordenadas de cualquier otro punto del mapa. Si quieres que se elimine tu contacto de una propuesta ya enviada, escribe a <a href="mailto:contact@thevicemap.com">contact@thevicemap.com</a> indicando de qué hallazgo se trata.</p>
+
+  <h2>Menores</h2>
+  <p>El sitio no está destinado a recopilar datos de menores de 13 años, y conscientemente no pedimos ninguna información que pueda identificar la edad de un visitante.</p>
+
+  <p style="margin-top: 40px;">Si tienes preguntas sobre esta política, escribe a <a href="mailto:contact@thevicemap.com">contact@thevicemap.com</a>.</p>
+  </div>
 </main>
+<script src="/i18n.js"></script>
 </body>
 </html>
