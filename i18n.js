@@ -11,6 +11,7 @@
     ru: {
       'doc.title': 'THE VICE MAP — Интерактивная карта GTA VI: оружие, транспорт, пасхалки',
       'doc.desc': 'Неофициальная интерактивная карта Leonida (GTA VI): координаты оружия, транспорта, случайных событий и пасхалок. Отмечай найденное, ищи по названию.',
+      'timer.label': 'До релиза GTA VI', 'timer.d': 'дн', 'timer.h': 'ч', 'timer.m': 'мин', 'timer.s': 'сек', 'timer.out': 'GTA VI уже вышла!',
       'page.back': '← Назад к карте',
       'menu.open': 'Открыть меню',
       'brand.subtitle': 'Явные координаты. Никаких секретов.',
@@ -70,6 +71,7 @@
     en: {
       'doc.title': 'THE VICE MAP — Interactive GTA VI Map: weapons, vehicles, easter eggs',
       'doc.desc': 'Unofficial interactive map of Leonida (GTA VI): coordinates of weapons, vehicles, random events and easter eggs. Track what you found, search by name.',
+      'timer.label': 'Until GTA VI release', 'timer.d': 'd', 'timer.h': 'h', 'timer.m': 'min', 'timer.s': 'sec', 'timer.out': 'GTA VI is out!',
       'page.back': '← Back to the map',
       'menu.open': 'Open menu',
       'brand.subtitle': 'Exact coordinates. No secrets.',
@@ -129,6 +131,7 @@
     es: {
       'doc.title': 'THE VICE MAP — Mapa interactivo de GTA VI: armas, vehículos, secretos',
       'doc.desc': 'Mapa interactivo no oficial de Leonida (GTA VI): coordenadas de armas, vehículos, eventos aleatorios y secretos. Marca lo que encuentres y busca por nombre.',
+      'timer.label': 'Para el lanzamiento de GTA VI', 'timer.d': 'd', 'timer.h': 'h', 'timer.m': 'min', 'timer.s': 's', 'timer.out': '¡GTA VI ya salió!',
       'page.back': '← Volver al mapa',
       'menu.open': 'Abrir menú',
       'brand.subtitle': 'Coordenadas exactas. Sin secretos.',

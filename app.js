@@ -1602,3 +1602,34 @@ function relabelDynamicUi() {
 }
 document.addEventListener('langchange', relabelDynamicUi);
 document.addEventListener('DOMContentLoaded', relabelDynamicUi);
+
+
+/* ---------------------------------------------------------
+   Таймер до релиза GTA VI (19 ноября 2026, полночь по времени посетителя)
+--------------------------------------------------------- */
+(function initCountdown() {
+  const RELEASE = new Date(2026, 10, 19, 0, 0, 0).getTime(); // месяцы с нуля: 10 = ноябрь
+  const grid = document.getElementById('countdownGrid');
+  const out = document.getElementById('countdownOut');
+  const els = { d: document.getElementById('cdD'), h: document.getElementById('cdH'), m: document.getElementById('cdM'), s: document.getElementById('cdS') };
+  if (!grid || !out || !els.d) return;
+
+  function tick() {
+    const left = RELEASE - Date.now();
+    if (left <= 0) {
+      grid.hidden = true;
+      out.hidden = false;
+      document.querySelector('.countdown-label').hidden = true;
+      return false;
+    }
+    const sec = Math.floor(left / 1000);
+    els.d.textContent = String(Math.floor(sec / 86400));
+    els.h.textContent = String(Math.floor(sec % 86400 / 3600)).padStart(2, '0');
+    els.m.textContent = String(Math.floor(sec % 3600 / 60)).padStart(2, '0');
+    els.s.textContent = String(sec % 60).padStart(2, '0');
+    return true;
+  }
+  if (tick()) {
+    const timer = setInterval(() => { if (!tick()) clearInterval(timer); }, 1000);
+  }
+})();

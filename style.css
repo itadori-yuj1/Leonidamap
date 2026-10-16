@@ -1152,3 +1152,12 @@ html[lang="ru"] [data-lang-block="ru"],
 html[lang="en"] [data-lang-block="en"],
 html[lang="es"] [data-lang-block="es"] { display: block; }
 .static-page .lang-switch { margin: 6px 0 18px; }
+
+/* Таймер до релиза */
+.countdown { margin-top: 14px; padding: 12px 14px; border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 12px; background: rgba(0, 240, 255, 0.04); }
+.countdown-label { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-low, #8a8a99); }
+.countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
+.countdown-cell b { display: block; font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 800; color: var(--cyan, #00f0ff); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.countdown-cell span { display: block; margin-top: 3px; font-size: 11px; letter-spacing: 0.06em; color: var(--text-low, #8a8a99); }
+.countdown-out { margin: 0; font-family: 'Orbitron', sans-serif; font-weight: 800; color: var(--pink, #ff007f); }
+.countdown [hidden] { display: none !important; }
