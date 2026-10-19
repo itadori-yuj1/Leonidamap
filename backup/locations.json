@@ -13,7 +13,11 @@
     "conditions": [
       "requires-crowbar"
     ],
-    "verified": true
+    "verified": true,
+    "name_en": "Combat shotgun stash",
+    "description_en": "Abandoned warehouse in the Cape Centaur port. The shotgun is in a container behind a rusty door — you will need a crowbar.",
+    "name_es": "Alijo con escopeta de combate",
+    "description_es": "Almacén abandonado en el puerto de Cabo Centauro. La escopeta está en un contenedor tras una puerta oxidada: necesitarás una palanca."
   },
   {
     "loc_id": "loc-002",
@@ -29,7 +33,11 @@
     "conditions": [
       "night"
     ],
-    "verified": true
+    "verified": true,
+    "name_en": "Sports car \"Comet S2\"",
+    "description_en": "Parked on a rooftop car park in Vice City Beach. Appears only during in-game night time.",
+    "name_es": "Deportivo «Comet S2»",
+    "description_es": "Aparcado en la azotea de un parking en Vice City Beach. Solo aparece durante la noche del juego."
   },
   {
     "loc_id": "loc-003",
@@ -43,7 +51,11 @@
     "conditions": [
       "rain"
     ],
-    "verified": true
+    "verified": true,
+    "name_en": "Armored truck robbery",
+    "description_en": "Random event on the Leonida Keys highway. Higher spawn chance during rain.",
+    "name_es": "Atraco a un furgón blindado",
+    "description_es": "Evento aleatorio en la autopista de Leonida Keys. Más probable cuando llueve."
   },
   {
     "loc_id": "loc-004",
@@ -55,7 +67,11 @@
     "images": [],
     "rarity": "unique",
     "conditions": [],
-    "verified": true
+    "verified": true,
+    "name_en": "Graffiti \"Vice City 1986\"",
+    "description_en": "A nod to the original GTA: Vice City. Painted on a club wall downtown.",
+    "name_es": "Grafiti «Vice City 1986»",
+    "description_es": "Homenaje al GTA: Vice City original. Pintado en la pared de un club del centro."
   },
   {
     "loc_id": "loc-005",
@@ -69,7 +85,29 @@
     "conditions": [
       "high-wanted-risk"
     ],
-    "verified": false
+    "verified": false,
+    "name_en": "Military helicopter \"Annihilator\"",
+    "description_en": "Guarded military base south of the mainland. High wanted level when stolen.",
+    "name_es": "Helicóptero militar «Annihilator»",
+    "description_es": "Base militar vigilada al sur del continente. Nivel de búsqueda alto al robarlo."
+  },
+  {
+    "loc_id": "loc-4562",
+    "name": "Штаны Люсии",
+    "category": "eastereggs",
+    "x": 3171,
+    "y": 2882,
+    "description": "Возле дома",
+    "images": [
+      "https://izwqsntcwjvrjlbptbew.supabase.co/storage/v1/object/public/submissions/loc-4562-1792081904830.jpg"
+    ],
+    "rarity": null,
+    "conditions": [],
+    "verified": false,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
   },
   {
     "loc_id": "loc-7003",
@@ -83,7 +121,11 @@
     "conditions": [
       "daytime-only"
     ],
-    "verified": false
+    "verified": false,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
   },
   {
     "loc_id": "loc-9279",
@@ -100,6 +142,26 @@
     "conditions": [
       "high-wanted-risk"
     ],
-    "verified": true
+    "verified": true,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
+  },
+  {
+    "loc_id": "test-tg1",
+    "name": "ТЕСТ уведомления",
+    "category": "events",
+    "x": 100,
+    "y": 100,
+    "description": "Проверка Telegram-уведомлений. Эту заявку можно игнорировать.",
+    "images": [],
+    "rarity": null,
+    "conditions": [],
+    "verified": false,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
   }
 ]
