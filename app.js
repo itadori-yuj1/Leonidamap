@@ -102,12 +102,12 @@ const mapConfig = {
   tileMinZoom: 0,
   tileMaxZoom: 5,
   tileSize: 256,
-  fullWidth: 8192,
+  fullWidth: 5862,
   fullHeight: 8192,
   // Пока настоящих тайлов нет — показываем векторную подложку-заглушку.
   // Когда папка tiles/ будет готова, поставить useTiles: true.
   useTiles: false,
-  baseImage: 'img/base-placeholder.svg',
+  baseImage: 'assets/leonida-map.webp',
 };
 
 /* ---------------------------------------------------------
