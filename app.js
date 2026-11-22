@@ -1354,6 +1354,10 @@ const pickLocationBtn = document.getElementById('pickLocationBtn');
 const sPhoto = document.getElementById('sPhoto');
 const sPhotoPreview = document.getElementById('sPhotoPreview');
 
+// Можно приложить несколько фото — максимум 3 (столько принимает сервер).
+const MAX_PHOTOS = 3;
+sPhoto.multiple = true;
+
 // Сжимает фото прямо в браузере перед загрузкой — телефонные камеры обычно
 // снимают в 3-10 МБ, а для миниатюры в попапе достаточно намного меньше.
 // Уменьшаем до максимум 1280px по широкой стороне и пережимаем в JPEG.
@@ -1383,16 +1387,18 @@ function compressImage(file, maxWidth = 1280, quality = 0.75) {
   });
 }
 
-// Превью выбранного фото прямо в форме — просто уверенность, что выбрали то,
-// что нужно, до отправки.
+// Превью выбранных фото прямо в форме — просто уверенность, что выбрали то,
+// что нужно, до отправки. Показываем только первые MAX_PHOTOS — остальные
+// не будут отправлены.
 sPhoto.addEventListener('change', () => {
-  const file = sPhoto.files[0];
-  if (!file) {
+  const files = Array.from(sPhoto.files).slice(0, MAX_PHOTOS);
+  if (!files.length) {
     sPhotoPreview.hidden = true;
     return;
   }
-  const url = URL.createObjectURL(file);
-  sPhotoPreview.innerHTML = `<img src="${url}" alt=""> ${escapeHtml(file.name)}`;
+  sPhotoPreview.innerHTML = files
+    .map((file) => `<img src="${URL.createObjectURL(file)}" alt=""> ${escapeHtml(file.name)}`)
+    .join('<br>');
   sPhotoPreview.hidden = false;
 });
 
@@ -1487,7 +1493,7 @@ suggestForm.addEventListener('submit', async (e) => {
   const x = parseInt(document.getElementById('sX').value, 10);
   const y = parseInt(document.getElementById('sY').value, 10);
   const contact = document.getElementById('sContact').value.trim() || null;
-  const photoFile = sPhoto.files[0] || null;
+  const photoFiles = Array.from(sPhoto.files).slice(0, MAX_PHOTOS);
 
   if (Number.isNaN(x) || Number.isNaN(y)) {
     suggestSubmitBtn.disabled = false;
@@ -1501,26 +1507,28 @@ suggestForm.addEventListener('submit', async (e) => {
   const images = [];
 
   // Если приложили фото — сжимаем и загружаем в Storage (bucket "submissions")
-  // ДО записи точки, чтобы сразу получить публичную ссылку и вставить её
+  // ДО записи точки, чтобы сразу получить публичные ссылки и вставить их
   // в images. Если это упадёт — не отправляем заявку молча без фото,
   // а честно сообщаем и даём попробовать ещё раз.
-  if (photoFile) {
+  if (photoFiles.length) {
     suggestStatus.textContent = t('form.uploading');
     suggestStatus.className = 'suggest-status is-success';
     suggestStatus.hidden = false;
 
     try {
-      const compressed = await compressImage(photoFile);
-      const filePath = `${locId}-${Date.now()}.jpg`;
+      for (let i = 0; i < photoFiles.length; i++) {
+        const compressed = await compressImage(photoFiles[i]);
+        const filePath = `${locId}-${Date.now()}-${i}.jpg`;
 
-      const { error: uploadError } = await db.storage
-        .from('submissions')
-        .upload(filePath, compressed, { contentType: 'image/jpeg' });
+        const { error: uploadError } = await db.storage
+          .from('submissions')
+          .upload(filePath, compressed, { contentType: 'image/jpeg' });
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      const { data: urlData } = db.storage.from('submissions').getPublicUrl(filePath);
-      images.push(urlData.publicUrl);
+        const { data: urlData } = db.storage.from('submissions').getPublicUrl(filePath);
+        images.push(urlData.publicUrl);
+      }
     } catch (err) {
       suggestSubmitBtn.disabled = false;
       console.error('Не удалось загрузить фото:', err);
