@@ -219,6 +219,37 @@ function locDesc(loc) {
   return (loc.i18n && loc.i18n[l] && loc.i18n[l].description) || loc.description;
 }
 
+// Блок с фото в окошке точки. Одно фото — как раньше. Два и больше —
+// галерея: фото листаются свайпом (на телефоне) или стрелками (на компьютере),
+// снизу точки показывают, какое фото сейчас открыто. Стили встроены прямо
+// в разметку, чтобы не трогать общий style.css.
+function buildGalleryHtml(images, altText) {
+  if (!images.length) return '';
+  const alt = escapeHtml(altText);
+
+  if (images.length === 1) {
+    return `<div class="leo-popup-img-wrap"><img src="${escapeHtml(images[0])}" alt="${alt}" class="leo-popup-img" loading="lazy" onerror="this.closest('.leo-popup-img-wrap').style.display='none'"></div>`;
+  }
+
+  const slides = images.map((src) =>
+    `<img src="${escapeHtml(src)}" alt="${alt}" class="leo-popup-img" loading="lazy" style="flex:0 0 100%; scroll-snap-align:center; transform:none;" onerror="this.style.visibility='hidden'">`
+  ).join('');
+
+  const dots = images.map((_, i) =>
+    `<span class="leo-gallery-dot" style="width:6px; height:6px; border-radius:50%; background:#fff; box-shadow:0 0 3px rgba(0,0,0,0.8); opacity:${i === 0 ? '1' : '0.4'}; transition:opacity 0.15s;"></span>`
+  ).join('');
+
+  const arrow = (cls, side, label, symbol) =>
+    `<button type="button" class="leo-gallery-${cls}" aria-label="${label}" style="position:absolute; top:50%; ${side}:6px; transform:translateY(-50%); width:26px; height:26px; padding:0; border:none; border-radius:50%; background:rgba(0,0,0,0.55); color:#fff; font-size:18px; line-height:1; cursor:pointer;">${symbol}</button>`;
+
+  return `<div class="leo-popup-img-wrap" style="position:relative;">
+      <div class="leo-gallery" style="display:flex; height:100%; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -webkit-overflow-scrolling:touch;">${slides}</div>
+      ${arrow('prev', 'left', 'Previous photo', '‹')}
+      ${arrow('next', 'right', 'Next photo', '›')}
+      <div style="position:absolute; left:0; right:0; bottom:6px; display:flex; justify-content:center; gap:5px; pointer-events:none;">${dots}</div>
+    </div>`;
+}
+
 function buildPopupHtml(location) {
   const cat = CATEGORIES[location.category];
   const isFound = foundIds.has(location.id);
@@ -226,9 +257,7 @@ function buildPopupHtml(location) {
 
   const images = getImages(location);
   const safeId = escapeHtml(location.id);
-  const imageHtml = images.length
-    ? `<div class="leo-popup-img-wrap"><img src="${escapeHtml(images[0])}" alt="${escapeHtml(locName(location))}" class="leo-popup-img" loading="lazy" onerror="this.closest('.leo-popup-img-wrap').style.display='none'"></div>`
-    : '';
+  const imageHtml = buildGalleryHtml(images, locName(location));
 
   const rarityHtml = rarity !== 'common'
     ? ` · <span class="leo-popup-rarity rarity-${rarity}">${RARITY[rarity].label}</span>`
@@ -340,6 +369,22 @@ function bindPopupButton(popupNode) {
   const editBtn = popupNode.querySelector('.leo-popup-edit-btn');
   if (editBtn) {
     editBtn.onclick = () => openEditForm(editBtn.dataset.locId);
+  }
+
+  // Галерея фото: подсвечиваем точку текущего фото при листании и
+  // подключаем стрелки для мыши.
+  const gallery = popupNode.querySelector('.leo-gallery');
+  if (gallery) {
+    const dots = popupNode.querySelectorAll('.leo-gallery-dot');
+    gallery.addEventListener('scroll', () => {
+      const index = Math.round(gallery.scrollLeft / (gallery.clientWidth || 1));
+      dots.forEach((dot, i) => { dot.style.opacity = i === index ? '1' : '0.4'; });
+    }, { passive: true });
+
+    const prevBtn = popupNode.querySelector('.leo-gallery-prev');
+    const nextBtn = popupNode.querySelector('.leo-gallery-next');
+    if (prevBtn) prevBtn.onclick = () => gallery.scrollBy({ left: -gallery.clientWidth, behavior: 'smooth' });
+    if (nextBtn) nextBtn.onclick = () => gallery.scrollBy({ left: gallery.clientWidth, behavior: 'smooth' });
   }
 
   // Удаление — с двухшаговым подтверждением прямо на кнопке, а не через
