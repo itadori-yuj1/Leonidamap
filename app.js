@@ -24,6 +24,10 @@ const RARITY = {
 
 // Известные тэги условий доступности точки — если встретится тэг не из
 // этого списка, просто покажем его как есть (без перевода на русский).
+// Список ключей нужен формам картографа (чекбоксы) и импорту из JSON;
+// подписи берутся из словаря (ключи 'cond.<тег>' в i18n.js).
+const CONDITION_KEYS = ['night', 'rain', 'requires-crowbar', 'requires-tool', 'high-wanted-risk', 'underwater', 'daytime-only'];
+
 function conditionLabel(tag) {
   // Ключ 'cond.<тег>' ищется в словаре; если перевода нет — показываем тег как есть.
   const key = 'cond.' + tag;
@@ -65,9 +69,9 @@ function normalizeImagePath(name) {
 // (пусто для новой точки, location.conditions при редактировании).
 function buildConditionsHtml(checkedTags) {
   checkedTags = checkedTags || [];
-  return Object.entries(CONDITION_LABELS).map(([val, label]) => `
+  return CONDITION_KEYS.map((val) => `
     <label style="display:inline-flex; align-items:center; gap:4px; font-size:11px; margin:2px 8px 2px 0; color:#ccc;">
-      <input type="checkbox" class="admCondition" value="${val}" ${checkedTags.includes(val) ? 'checked' : ''}> ${label}
+      <input type="checkbox" class="admCondition" value="${val}" ${checkedTags.includes(val) ? 'checked' : ''}> ${escapeHtml(conditionLabel(val))}
     </label>
   `).join('');
 }
@@ -83,6 +87,7 @@ function buildConditionsHtml(checkedTags) {
    - verified: boolean — false для точек, ожидающих проверки
      модератором; они скрыты, пока пользователь не включит тогл
      «Показывать неподтверждённые точки»
+   - district: string — район (Vice City, Port Gellhorn…), необязательно
 --------------------------------------------------------- */
 let locations = [];
 
@@ -263,6 +268,10 @@ function buildPopupHtml(location) {
     ? ` · <span class="leo-popup-rarity rarity-${rarity}">${RARITY[rarity].label}</span>`
     : '';
 
+  const districtHtml = location.district
+    ? `<div class="leo-popup-district" style="font-size:12px; font-weight:600; color:var(--text-mid); margin:-2px 0 8px;">📍 ${escapeHtml(location.district)}</div>`
+    : '';
+
   const tagsHtml = (location.conditions && location.conditions.length)
     ? `<div class="leo-popup-tags">${location.conditions.map(c => `<span class="leo-popup-tag">${escapeHtml(conditionLabel(c))}</span>`).join('')}</div>`
     : '';
@@ -282,6 +291,7 @@ function buildPopupHtml(location) {
         ${unverifiedHtml}
         <div class="leo-popup-category">${cat.icon} ${cat.label.toUpperCase()}${rarityHtml}</div>
         <h3 class="leo-popup-title">${escapeHtml(locName(location))}</h3>
+        ${districtHtml}
         ${tagsHtml}
         <p class="leo-popup-desc">${escapeHtml(locDesc(location))}</p>
         <div class="leo-popup-actions">
@@ -439,6 +449,9 @@ function openEditForm(id) {
         <input id="admName" type="text" value="${escapeHtml(loc.name)}" placeholder="Название объекта"
           style="width:100%; margin:8px 0 6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
 
+        <input id="admDistrict" type="text" value="${escapeHtml(loc.district || '')}" placeholder="Район (напр. Vice City)" maxlength="60"
+          style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
+
         <select id="admCat" style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
           <option value="weapons" ${loc.category === 'weapons' ? 'selected' : ''}>🔫 Оружие</option>
           <option value="vehicles" ${loc.category === 'vehicles' ? 'selected' : ''}>🚗 Транспорт</option>
@@ -517,6 +530,7 @@ function openEditForm(id) {
     saveBtn.onclick = () => {
       try {
         const name = popupNode.querySelector('#admName').value || 'Без названия';
+        const district = popupNode.querySelector('#admDistrict').value.trim();
         const category = popupNode.querySelector('#admCat').value;
         const rarity = popupNode.querySelector('#admRarity').value;
         const description = popupNode.querySelector('#admDesc').value || '';
@@ -532,7 +546,7 @@ function openEditForm(id) {
         setStatus('Отправляю изменения…', '#00f0ff');
 
         db.from('locations')
-          .update({ name, category, rarity, description, verified, images, conditions })
+          .update({ name, district: district || null, category, rarity, description, verified, images, conditions })
           .eq('loc_id', id)
           .select('loc_id')
           .then(({ data, error }) => {
@@ -554,7 +568,7 @@ function openEditForm(id) {
             // фильтров в сайдбаре будет работать для него неправильно —
             // setIcon() меняет только иконку, но не группу.
             const categoryChanged = entry.data.category !== category;
-            Object.assign(entry.data, { name, category, rarity, description, verified, images, conditions });
+            Object.assign(entry.data, { name, district, category, rarity, description, verified, images, conditions });
 
             if (categoryChanged) {
               entry.marker.remove();
@@ -856,7 +870,7 @@ filterListEl.addEventListener('change', (e) => {
 });
 
 /* ---------------------------------------------------------
-   10. ПОИСК ПО НАЗВАНИЮ
+   10. ПОИСК ПО НАЗВАНИЮ (и по району)
 --------------------------------------------------------- */
 const searchInput = document.getElementById('searchInput');
 
@@ -865,7 +879,8 @@ function applySearchFilter() {
 
   locations.forEach(loc => {
     const { marker } = markerIndex[loc.id];
-    const matchesQuery = query === '' || loc.name.toLowerCase().includes(query) || locName(loc).toLowerCase().includes(query);
+    const matchesQuery = query === '' || loc.name.toLowerCase().includes(query) || locName(loc).toLowerCase().includes(query) ||
+      (loc.district || '').toLowerCase().includes(query);
     const categoryActive = activeCategories.has(loc.category);
     const verifiedOk = loc.verified !== false || showUnverified;
     const shouldShow = matchesQuery && categoryActive && verifiedOk;
@@ -1006,6 +1021,7 @@ function rowToLocation(row) {
     x,
     y,
     description: String(row.description == null ? '' : row.description).slice(0, 2000),
+    district: cleanText(row.district, 60),
     images: Array.isArray(row.images) ? row.images.filter(isSafeImagePath).slice(0, 5) : [],
     rarity: has(RARITY, row.rarity) ? row.rarity : null,
     conditions: Array.isArray(row.conditions)
@@ -1015,7 +1031,7 @@ function rowToLocation(row) {
   };
 }
 
-db.from('locations').select('loc_id,name,category,x,y,description,images,rarity,conditions,verified,name_en,description_en,name_es,description_es')
+db.from('locations').select('loc_id,name,category,x,y,description,district,images,rarity,conditions,verified,name_en,description_en,name_es,description_es')
   .then(({ data, error }) => {
     if (error) throw error;
     locations = data.map(rowToLocation).filter(Boolean);
@@ -1179,9 +1195,9 @@ if (brandTitleEl) {
   });
 }
 
-// Общий редактор точки: строит попап-форму (название/категория/редкость/
-// условия/картинки/статус) в указанных координатах. Используется и при
-// клике по карте, и при вводе X/Y вручную в панели картографа — так
+// Общий редактор точки: строит попап-форму (название/район/категория/
+// редкость/условия/картинки/статус) в указанных координатах. Используется и
+// при клике по карте, и при вводе X/Y вручную в панели картографа — так
 // оба способа добавления точки остаются полностью одинаковыми по функциям.
 function openAdminEditor(x, y, latlng) {
   if (tempAdminMarker) map.removeLayer(tempAdminMarker);
@@ -1197,6 +1213,9 @@ function openAdminEditor(x, y, latlng) {
 
         <input id="admName" type="text" placeholder="Название объекта"
           style="width:100%; margin:8px 0 6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
+
+        <input id="admDistrict" type="text" placeholder="Район (напр. Vice City)" maxlength="60"
+          style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
 
         <select id="admCat" style="width:100%; margin-bottom:6px; padding:6px; background:#14141d; border:1px solid #333; color:#fff; border-radius:4px; font-size:13px;">
           <option value="weapons">🔫 Оружие</option>
@@ -1258,6 +1277,7 @@ function openAdminEditor(x, y, latlng) {
     // и скопировать JSON), чтобы не дублировать одно и то же дважды.
     function collectAdminFormValues() {
       const name = popupNode.querySelector('#admName').value || 'Без названия';
+      const district = popupNode.querySelector('#admDistrict').value.trim() || null;
       const category = popupNode.querySelector('#admCat').value;
       const rarity = popupNode.querySelector('#admRarity').value;
       const description = popupNode.querySelector('#admDesc').value || '';
@@ -1270,7 +1290,7 @@ function openAdminEditor(x, y, latlng) {
 
       const conditions = Array.from(popupNode.querySelectorAll('.admCondition:checked')).map(cb => cb.value);
 
-      return { name, category, rarity, description, verified, images, conditions };
+      return { name, district, category, rarity, description, verified, images, conditions };
     }
 
     const saveBtn = popupNode.querySelector('#admSaveBtn');
@@ -1384,6 +1404,338 @@ document.getElementById('admGoBtn').addEventListener('click', () => {
   map.flyTo(latlng, Math.max(map.getZoom(), mapConfig.tileMaxZoom - 1));
   openAdminEditor(x, y, latlng);
 });
+
+/* ---------------------------------------------------------
+   13б. МАССОВЫЙ ИМПОРТ ТОЧЕК ИЗ JSON (режим картографа)
+   В панели картографа появляется кнопка «📥 Импорт из JSON». Вставляете
+   массив точек → «Проверить» (ошибки, дубликаты) → «Загрузить»
+   (пачками по 25 штук в Supabase; маркеры сразу появляются на карте).
+   Дубликат — точка с тем же названием ближе IMPORT_DUP_DISTANCE единиц
+   карты к уже существующей (на карте или раньше в этом же списке).
+--------------------------------------------------------- */
+const IMPORT_MAX_ITEMS = 200;
+const IMPORT_CHUNK = 25;
+const IMPORT_DUP_DISTANCE = 150;
+const IMPORT_NEAR_DISTANCE = 20;
+
+const IMPORT_EXAMPLE = `[
+  {
+    "name": "Угнанный байк",
+    "district": "Vice City",
+    "x": 2900,
+    "y": 4100,
+    "description": "Ночью у пирса прохожий просит вернуть байк. Награда — наличные.",
+    "category": "events",
+    "rarity": "common",
+    "conditions": ["night"],
+    "images": [],
+    "verified": true
+  },
+  {
+    "name": "Гонка на пляже",
+    "district": "Vice Beach",
+    "x": 4650,
+    "y": 4220,
+    "description": "Случайный гонщик вызывает на заезд вдоль набережной."
+  }
+]`;
+
+function normalizeName(value) {
+  return String(value).toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function mapDistance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+// Голое имя файла получает префикс img/, а уже готовые пути и ссылки остаются как есть.
+function importImagePath(p) {
+  const value = p.trim();
+  return /^(https?:\/\/|img\/)/.test(value) ? value : 'img/' + value;
+}
+
+// Проверяет разобранный JSON и раскладывает точки: к загрузке / дубликаты / ошибки.
+function checkImportItems(raw) {
+  const result = { rows: [], duplicates: [], errors: [], warnings: [], fatal: null };
+  const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+
+  if (!Array.isArray(raw)) { result.fatal = 'Нужен массив: [ { ... }, { ... } ]'; return result; }
+  if (raw.length === 0) { result.fatal = 'Массив пустой'; return result; }
+  if (raw.length > IMPORT_MAX_ITEMS) {
+    result.fatal = `За один раз не больше ${IMPORT_MAX_ITEMS} точек (у вас ${raw.length})`;
+    return result;
+  }
+
+  const known = locations.map((l) => ({ name: l.name, x: l.x, y: l.y }));
+
+  raw.forEach((item, index) => {
+    const title = '#' + (index + 1) + (item && typeof item.name === 'string' ? ' «' + item.name.trim().slice(0, 40) + '»' : '');
+
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      result.errors.push(title + ': это не объект { ... }');
+      return;
+    }
+
+    const problems = [];
+
+    const name = typeof item.name === 'string' ? item.name.trim() : '';
+    if (name.length < 1 || name.length > 80) problems.push('name: от 1 до 80 символов');
+
+    const description = typeof item.description === 'string' ? item.description.trim() : '';
+    if (description.length < 1 || description.length > 1000) problems.push('description: от 1 до 1000 символов');
+
+    const x = item.x;
+    const y = item.y;
+    if (typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x) || !Number.isFinite(y) ||
+        x < 0 || x > mapConfig.fullWidth || y < 0 || y > mapConfig.fullHeight) {
+      problems.push(`x и y: числа, x от 0 до ${mapConfig.fullWidth}, y от 0 до ${mapConfig.fullHeight}`);
+    }
+
+    const category = item.category == null || item.category === '' ? 'events' : item.category;
+    if (!has(CATEGORIES, category)) problems.push('category: ' + Object.keys(CATEGORIES).join(', '));
+
+    const rarity = item.rarity == null || item.rarity === '' ? null : item.rarity;
+    if (rarity !== null && !has(RARITY, rarity)) problems.push('rarity: common, rare или unique');
+
+    const district = item.district == null ? '' : String(item.district).trim();
+    if (district.length > 60) problems.push('district: не длиннее 60 символов');
+
+    let conditions = [];
+    if (item.conditions != null) {
+      if (!Array.isArray(item.conditions) || item.conditions.some((c) => !CONDITION_KEYS.includes(c))) {
+        problems.push('conditions: массив из ' + CONDITION_KEYS.join(', '));
+      } else {
+        conditions = item.conditions;
+      }
+    }
+
+    let images = [];
+    if (item.images != null) {
+      if (!Array.isArray(item.images) || item.images.length > 3 ||
+          item.images.some((p) => typeof p !== 'string' || !isSafeImagePath(importImagePath(p)))) {
+        problems.push('images: до 3 файлов из папки img/ (достаточно имени файла)');
+      } else {
+        images = item.images.map(importImagePath);
+      }
+    }
+
+    const verified = item.verified === false ? false : true;
+
+    if (problems.length) {
+      result.errors.push(title + ': ' + problems.join('; '));
+      return;
+    }
+
+    const row = {
+      name, category, rarity, description,
+      district: district || null,
+      x: Math.round(x), y: Math.round(y),
+      images, conditions, verified,
+    };
+
+    const key = normalizeName(name);
+    const dup = known.find((k) => normalizeName(k.name) === key && mapDistance(k, row) < IMPORT_DUP_DISTANCE);
+    if (dup) {
+      result.duplicates.push(`${title}: такая точка уже есть (${Math.round(mapDistance(dup, row))} ед. от неё)`);
+      return;
+    }
+
+    const near = known.find((k) => mapDistance(k, row) < IMPORT_NEAR_DISTANCE);
+    if (near) {
+      result.warnings.push(`${title}: в ${Math.round(mapDistance(near, row))} ед. уже стоит «${near.name}» — загружу, но проверьте`);
+    }
+
+    result.rows.push(row);
+    known.push({ name, x: row.x, y: row.y });
+  });
+
+  return result;
+}
+
+function formatImportReport(result) {
+  if (result.fatal) return ['❌ ' + result.fatal];
+
+  const lines = [
+    `✔ К загрузке: ${result.rows.length}`,
+    `⏭ Дубликатов (пропущу): ${result.duplicates.length}`,
+    `❌ С ошибками (пропущу): ${result.errors.length}`,
+    `⚠ Предупреждений: ${result.warnings.length}`,
+  ];
+  const section = (heading, list) => {
+    if (!list.length) return;
+    lines.push('', heading);
+    list.slice(0, 30).forEach((line) => lines.push('• ' + line));
+    if (list.length > 30) lines.push(`… и ещё ${list.length - 30}`);
+  };
+  section('Ошибки:', result.errors);
+  section('Дубликаты:', result.duplicates);
+  section('Предупреждения:', result.warnings);
+  return lines;
+}
+
+// Уникальный loc_id для импортированной точки: 10 цифр (7 от времени + 3 номер в пачке).
+function makeImportId(counter) {
+  const base = String(Date.now()).slice(-7);
+  let n = counter;
+  let id;
+  do {
+    id = 'loc-' + base + String(n).padStart(3, '0');
+    n += 1;
+  } while (markerIndex[id]);
+  return id;
+}
+
+// Загружает точки пачками; каждая пачка — один запрос, поэтому она сохраняется целиком или не сохраняется вовсе.
+async function runImport(rows, onProgress) {
+  let done = 0;
+  for (let i = 0; i < rows.length; i += IMPORT_CHUNK) {
+    const chunk = rows.slice(i, i + IMPORT_CHUNK).map((row, k) => ({ loc_id: makeImportId(i + k), ...row }));
+
+    const { error } = await db.from('locations').insert(chunk);
+    if (error) return { done, error };
+
+    chunk.forEach((row) => {
+      const loc = rowToLocation(row);
+      if (loc) {
+        locations.push(loc);
+        addMarkerForLocation(loc);
+      }
+    });
+    done += chunk.length;
+    onProgress(done);
+  }
+  updateFilterCounts();
+  updateProgress();
+  applySearchFilter();
+  return { done, error: null };
+}
+
+let importUi = null;
+
+function buildImportUi() {
+  const overlayEl = document.createElement('div');
+  overlayEl.className = 'modal-overlay';
+
+  const card = document.createElement('div');
+  card.className = 'modal-card';
+  card.setAttribute('role', 'dialog');
+  card.setAttribute('aria-modal', 'true');
+  card.innerHTML = `
+    <button type="button" class="modal-close" id="impClose" aria-label="Закрыть">✕</button>
+    <h2 class="modal-title">Импорт точек из JSON</h2>
+    <p class="modal-subtitle">Вставьте массив точек. Обязательные поля: name, x, y, description. Остальные — по желанию.</p>
+    <details style="margin-bottom:10px;">
+      <summary style="cursor:pointer; color:var(--cyan); font-size:13px; font-weight:600;">Пример формата</summary>
+      <pre id="impExample" style="margin:8px 0 0; padding:10px; background:var(--bg-panel-2); border:1px solid var(--line); border-radius:8px; font-size:11px; color:var(--text-mid); overflow:auto; white-space:pre;"></pre>
+    </details>
+    <textarea id="impText" class="form-input" rows="10" spellcheck="false" placeholder="Вставьте сюда JSON-массив…" style="font-family:monospace; font-size:12px; resize:vertical;"></textarea>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <button type="button" id="impCheck" class="pick-btn" style="margin-top:0; flex:1;">Проверить</button>
+      <button type="button" id="impRun" class="submit-btn" style="flex:1;" disabled>Загрузить</button>
+    </div>
+    <pre id="impReport" hidden style="margin:12px 0 0; padding:10px; background:var(--bg-panel-2); border:1px solid var(--line); border-radius:8px; font-size:12px; color:var(--text-hi); white-space:pre-wrap; word-break:break-word; max-height:240px; overflow:auto;"></pre>
+  `;
+
+  document.body.appendChild(overlayEl);
+  document.body.appendChild(card);
+
+  const ui = {
+    overlay: overlayEl,
+    card,
+    text: card.querySelector('#impText'),
+    checkBtn: card.querySelector('#impCheck'),
+    runBtn: card.querySelector('#impRun'),
+    report: card.querySelector('#impReport'),
+    checked: null,
+  };
+  card.querySelector('#impExample').textContent = IMPORT_EXAMPLE;
+
+  const showReport = (lines) => {
+    ui.report.textContent = lines.join('\n');
+    ui.report.hidden = false;
+  };
+  const resetCheck = () => {
+    ui.checked = null;
+    ui.runBtn.disabled = true;
+    ui.runBtn.textContent = 'Загрузить';
+  };
+  const close = () => {
+    ui.overlay.classList.remove('is-open');
+    ui.card.classList.remove('is-open');
+  };
+
+  card.querySelector('#impClose').addEventListener('click', close);
+  overlayEl.addEventListener('click', close);
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && ui.card.classList.contains('is-open')) close();
+  });
+  ui.text.addEventListener('input', resetCheck);
+
+  ui.checkBtn.addEventListener('click', () => {
+    let raw;
+    try {
+      raw = JSON.parse(ui.text.value);
+    } catch (err) {
+      resetCheck();
+      showReport(['❌ Это не JSON: ' + err.message]);
+      return;
+    }
+    const result = checkImportItems(raw);
+    showReport(formatImportReport(result));
+    if (result.fatal || result.rows.length === 0) {
+      resetCheck();
+      return;
+    }
+    ui.checked = result;
+    ui.runBtn.disabled = false;
+    ui.runBtn.textContent = `Загрузить ${result.rows.length}`;
+  });
+
+  ui.runBtn.addEventListener('click', async () => {
+    if (!ui.checked) return;
+    const rows = ui.checked.rows;
+    ui.runBtn.disabled = true;
+    ui.checkBtn.disabled = true;
+    showReport([`Загружаю… 0 / ${rows.length}`]);
+
+    try {
+      const { done, error } = await runImport(rows, (n) => showReport([`Загружаю… ${n} / ${rows.length}`]));
+      if (error) {
+        showReport([
+          `⚠ Загружено ${done} из ${rows.length}.`,
+          '❌ Остановился на ошибке: ' + error.message,
+          'Уже загруженные точки на карте — повторно их не отправляйте.',
+        ]);
+      } else {
+        showReport([`✔ Готово: загружено ${done} из ${rows.length}.`, 'Маркеры уже на карте.']);
+      }
+    } catch (err) {
+      showReport(['❌ Ошибка сети: ' + err.message]);
+    } finally {
+      ui.checkBtn.disabled = false;
+      ui.checked = null;
+      ui.runBtn.textContent = 'Загрузить';
+    }
+  });
+
+  return ui;
+}
+
+function openImportModal() {
+  if (!importUi) importUi = buildImportUi();
+  importUi.overlay.classList.add('is-open');
+  importUi.card.classList.add('is-open');
+}
+
+if (adminPanel) {
+  const importBtn = document.createElement('button');
+  importBtn.type = 'button';
+  importBtn.className = 'admin-panel-btn';
+  importBtn.textContent = '📥 Импорт из JSON';
+  importBtn.style.cssText = 'display:block; width:100%; margin-top:8px; padding:8px 12px;';
+  importBtn.addEventListener('click', openImportModal);
+  adminPanel.appendChild(importBtn);
+}
 
 /* ---------------------------------------------------------
    14. МОДАЛКА «ПРЕДЛОЖИТЬ НАХОДКУ»
