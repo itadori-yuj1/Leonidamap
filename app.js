@@ -1361,13 +1361,14 @@ sPhoto.multiple = true;
 // Сжимает фото прямо в браузере перед загрузкой — телефонные камеры обычно
 // снимают в 3-10 МБ, а для миниатюры в попапе достаточно намного меньше.
 // Уменьшаем до максимум 1280px по широкой стороне и пережимаем в JPEG.
+// Файл читается через временную blob-ссылку (а не через base64), так что
+// несколько больших фото подряд не забивают память телефона.
 function compressImage(file, maxWidth = 1280, quality = 0.75) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    const reader = new FileReader();
-    reader.onload = (e) => { img.src = e.target.result; };
-    reader.onerror = () => reject(new Error('Не удалось прочитать файл'));
+    const url = URL.createObjectURL(file);
     img.onload = () => {
+      URL.revokeObjectURL(url);
       let { width, height } = img;
       if (width > maxWidth) {
         height = Math.round(height * (maxWidth / width));
@@ -1382,24 +1383,48 @@ function compressImage(file, maxWidth = 1280, quality = 0.75) {
         else reject(new Error('Не удалось сжать изображение'));
       }, 'image/jpeg', quality);
     };
-    img.onerror = () => reject(new Error('Файл повреждён или это не изображение'));
-    reader.readAsDataURL(file);
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Файл повреждён или это не изображение'));
+    };
+    img.src = url;
   });
 }
 
-// Превью выбранных фото прямо в форме — просто уверенность, что выбрали то,
-// что нужно, до отправки. Показываем только первые MAX_PHOTOS — остальные
-// не будут отправлены.
+// Фото сжимаются СРАЗУ при выборе, пока браузер гарантированно держит доступ
+// к файлам: на Android доступ к нескольким выбранным файлам может пропасть к
+// моменту нажатия «Отправить». При отправке берём уже готовые сжатые копии.
+let photoJob = Promise.resolve([]);
+
 sPhoto.addEventListener('change', () => {
   const files = Array.from(sPhoto.files).slice(0, MAX_PHOTOS);
   if (!files.length) {
+    photoJob = Promise.resolve([]);
     sPhotoPreview.hidden = true;
     return;
   }
-  sPhotoPreview.innerHTML = files
-    .map((file) => `<img src="${URL.createObjectURL(file)}" alt=""> ${escapeHtml(file.name)}`)
-    .join('<br>');
+
+  sPhotoPreview.textContent = '…';
   sPhotoPreview.hidden = false;
+
+  const job = (async () => {
+    const items = [];
+    for (const file of files) {
+      items.push({ name: file.name, blob: await compressImage(file) });
+    }
+    return items;
+  })();
+  photoJob = job;
+
+  job.then((items) => {
+    if (photoJob !== job) return; // за это время выбрали другие файлы
+    sPhotoPreview.innerHTML = items
+      .map((it) => `<img src="${URL.createObjectURL(it.blob)}" alt=""> ${escapeHtml(it.name)}`)
+      .join('<br>');
+  }).catch((err) => {
+    if (photoJob !== job) return;
+    sPhotoPreview.textContent = '❌ ' + (err && err.message ? err.message : err);
+  });
 });
 
 // Cloudflare Turnstile: публичный Site Key (секретный ключ хранится только на сервере).
@@ -1493,7 +1518,7 @@ suggestForm.addEventListener('submit', async (e) => {
   const x = parseInt(document.getElementById('sX').value, 10);
   const y = parseInt(document.getElementById('sY').value, 10);
   const contact = document.getElementById('sContact').value.trim() || null;
-  const photoFiles = Array.from(sPhoto.files).slice(0, MAX_PHOTOS);
+  const hasPhotos = sPhoto.files.length > 0;
 
   if (Number.isNaN(x) || Number.isNaN(y)) {
     suggestSubmitBtn.disabled = false;
@@ -1506,23 +1531,24 @@ suggestForm.addEventListener('submit', async (e) => {
   const locId = 'loc-' + String(Date.now()).slice(-4);
   const images = [];
 
-  // Если приложили фото — сжимаем и загружаем в Storage (bucket "submissions")
-  // ДО записи точки, чтобы сразу получить публичные ссылки и вставить их
-  // в images. Если это упадёт — не отправляем заявку молча без фото,
-  // а честно сообщаем и даём попробовать ещё раз.
-  if (photoFiles.length) {
+  // Если приложили фото — берём уже сжатые копии и загружаем в Storage
+  // (bucket "submissions") ДО записи точки, чтобы сразу получить публичные
+  // ссылки и вставить их в images. Если это упадёт — не отправляем заявку
+  // молча без фото, а честно сообщаем причину и даём попробовать ещё раз.
+  if (hasPhotos) {
     suggestStatus.textContent = t('form.uploading');
     suggestStatus.className = 'suggest-status is-success';
     suggestStatus.hidden = false;
 
     try {
-      for (let i = 0; i < photoFiles.length; i++) {
-        const compressed = await compressImage(photoFiles[i]);
+      const items = await photoJob;
+
+      for (let i = 0; i < items.length; i++) {
         const filePath = `${locId}-${Date.now()}-${i}.jpg`;
 
         const { error: uploadError } = await db.storage
           .from('submissions')
-          .upload(filePath, compressed, { contentType: 'image/jpeg' });
+          .upload(filePath, items[i].blob, { contentType: 'image/jpeg' });
 
         if (uploadError) throw uploadError;
 
@@ -1532,7 +1558,7 @@ suggestForm.addEventListener('submit', async (e) => {
     } catch (err) {
       suggestSubmitBtn.disabled = false;
       console.error('Не удалось загрузить фото:', err);
-      suggestStatus.textContent = t('form.photoFail');
+      suggestStatus.textContent = t('form.photoFail') + ' (' + (err && err.message ? err.message : err) + ')';
       suggestStatus.className = 'suggest-status is-error';
       suggestStatus.hidden = false;
       return;
@@ -1577,6 +1603,7 @@ suggestForm.addEventListener('submit', async (e) => {
       suggestStatus.className = 'suggest-status is-success';
       suggestStatus.hidden = false;
       sPhotoPreview.hidden = true;
+      photoJob = Promise.resolve([]);
       suggestForm.reset();
       setTimeout(closeSuggestModal, 1800);
     })
