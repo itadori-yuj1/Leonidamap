@@ -1,79 +1,5 @@
 [
   {
-    "loc_id": "loc-001",
-    "name": "Тайник с боевым дробовиком",
-    "category": "weapons",
-    "x": 320,
-    "y": 640,
-    "description": "Заброшенный склад в порту Мыса Сентавр. Дробовик лежит в контейнере за ржавой дверью — понадобится лом.",
-    "images": [
-      "img/shotgun.jpg"
-    ],
-    "rarity": "common",
-    "conditions": [
-      "requires-crowbar"
-    ],
-    "verified": true,
-    "name_en": "Combat shotgun stash",
-    "description_en": "Abandoned warehouse in the Cape Centaur port. The shotgun is in a container behind a rusty door — you will need a crowbar.",
-    "name_es": "Alijo con escopeta de combate",
-    "description_es": "Almacén abandonado en el puerto de Cabo Centauro. La escopeta está en un contenedor tras una puerta oxidada: necesitarás una palanca."
-  },
-  {
-    "loc_id": "loc-002",
-    "name": "Спорткар «Comet S2»",
-    "category": "vehicles",
-    "x": 610,
-    "y": 420,
-    "description": "Стоит на крыше парковки в Вайс-Сити-Бич. Появляется только в ночное игровое время.",
-    "images": [
-      "img/comet.jpg"
-    ],
-    "rarity": "rare",
-    "conditions": [
-      "night"
-    ],
-    "verified": true,
-    "name_en": "Sports car \"Comet S2\"",
-    "description_en": "Parked on a rooftop car park in Vice City Beach. Appears only during in-game night time.",
-    "name_es": "Deportivo «Comet S2»",
-    "description_es": "Aparcado en la azotea de un parking en Vice City Beach. Solo aparece durante la noche del juego."
-  },
-  {
-    "loc_id": "loc-003",
-    "name": "Ограбление инкассаторов",
-    "category": "events",
-    "x": 480,
-    "y": 250,
-    "description": "Случайное событие на трассе Leonida Keys. Шанс появления выше во время дождя.",
-    "images": [],
-    "rarity": "rare",
-    "conditions": [
-      "rain"
-    ],
-    "verified": true,
-    "name_en": "Armored truck robbery",
-    "description_en": "Random event on the Leonida Keys highway. Higher spawn chance during rain.",
-    "name_es": "Atraco a un furgón blindado",
-    "description_es": "Evento aleatorio en la autopista de Leonida Keys. Más probable cuando llueve."
-  },
-  {
-    "loc_id": "loc-004",
-    "name": "Граффити «Vice City 1986»",
-    "category": "eastereggs",
-    "x": 180,
-    "y": 180,
-    "description": "Отсылка к оригинальной GTA: Vice City. Нарисовано на стене клуба в даунтауне.",
-    "images": [],
-    "rarity": "unique",
-    "conditions": [],
-    "verified": true,
-    "name_en": "Graffiti \"Vice City 1986\"",
-    "description_en": "A nod to the original GTA: Vice City. Painted on a club wall downtown.",
-    "name_es": "Grafiti «Vice City 1986»",
-    "description_es": "Homenaje al GTA: Vice City original. Pintado en la pared de un club del centro."
-  },
-  {
     "loc_id": "loc-005",
     "name": "Военный вертолёт «Annihilator»",
     "category": "vehicles",
@@ -92,18 +18,105 @@
     "description_es": "Base militar vigilada al sur del continente. Nivel de búsqueda alto al robarlo."
   },
   {
-    "loc_id": "loc-4562",
-    "name": "Штаны Люсии",
-    "category": "eastereggs",
-    "x": 3171,
-    "y": 2882,
-    "description": "Возле дома",
+    "loc_id": "loc-1020",
+    "name": "Пьяница просит денег",
+    "category": "events",
+    "x": 3073,
+    "y": 7148,
+    "description": "Выпивший прохожий ходит по улице и выпрашивает у окружающих деньги.",
+    "images": [],
+    "rarity": "common",
+    "conditions": [],
+    "verified": true,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
+  },
+  {
+    "loc_id": "loc-2169",
+    "name": "Nissan Skyline - '90 Annis Elegy",
+    "category": "vehicles",
+    "x": 4664,
+    "y": 4230,
+    "description": "Редкий купе в кастомном обвесе и аниме-ливрее CSI. Находится в западной части Starfish Island (ориентир — рядом с круговой развязкой, к северу от Waxman Island). Прототип — легендарный Nissan Skyline GT-R (R32/R33).",
     "images": [
-      "https://izwqsntcwjvrjlbptbew.supabase.co/storage/v1/object/public/submissions/loc-4562-1792081904830.jpg"
+      "https://izwqsntcwjvrjlbptbew.supabase.co/storage/v1/object/public/submissions/loc-2169-1795335112169-0.jpg",
+      "https://izwqsntcwjvrjlbptbew.supabase.co/storage/v1/object/public/submissions/loc-2169-1795335113380-1.jpg"
+    ],
+    "rarity": null,
+    "conditions": [],
+    "verified": true,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
+  },
+  {
+    "loc_id": "loc-4915",
+    "name": "Nissan Skyline - '90 Annis Elegy",
+    "category": "weapons",
+    "x": 4665,
+    "y": 4230,
+    "description": "Находится на острове starfish island",
+    "images": [
+      "https://izwqsntcwjvrjlbptbew.supabase.co/storage/v1/object/public/submissions/loc-4915-1795334874915-0.jpg",
+      "https://izwqsntcwjvrjlbptbew.supabase.co/storage/v1/object/public/submissions/loc-4915-1795334876034-1.jpg"
     ],
     "rarity": null,
     "conditions": [],
     "verified": false,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
+  },
+  {
+    "loc_id": "loc-5728",
+    "name": "Задержание электрошокером",
+    "category": "events",
+    "x": 2621,
+    "y": 7382,
+    "description": "Мужчина забирается на крышу полицейской машины, получает разряд из электрошокера и попадает под арест.",
+    "images": [],
+    "rarity": "common",
+    "conditions": [],
+    "verified": true,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
+  },
+  {
+    "loc_id": "loc-6535",
+    "name": "Фургон застрял в грязи",
+    "category": "events",
+    "x": 2632,
+    "y": 7443,
+    "description": "Двое мужчин застряли на фургоне в грязи: помогите вытолкать машину и получите $200.",
+    "images": [],
+    "rarity": "common",
+    "conditions": [],
+    "verified": true,
+    "name_en": null,
+    "description_en": null,
+    "name_es": null,
+    "description_es": null
+  },
+  {
+    "loc_id": "loc-6552",
+    "name": "Maibatsu Penumbra FF (Mitsubishi Eclipse — Форсаж)",
+    "category": "vehicles",
+    "x": 4638,
+    "y": 3901,
+    "description": "Уникальный спорткар в культовой зелёно-синей ливрее Брайана О’Коннера из первой части «Форсажа». Находится в гараже на острове Vespucci Island (архипелаг Rialto Islands, рядом с Catalan Island).",
+    "images": [
+      "https://izwqsntcwjvrjlbptbew.supabase.co/storage/v1/object/public/submissions/loc-6552-1795335526553-0.jpg",
+      "https://izwqsntcwjvrjlbptbew.supabase.co/storage/v1/object/public/submissions/loc-6552-1795335528405-1.jpg"
+    ],
+    "rarity": null,
+    "conditions": [],
+    "verified": true,
     "name_en": null,
     "description_en": null,
     "name_es": null,
@@ -128,19 +141,16 @@
     "description_es": null
   },
   {
-    "loc_id": "loc-9279",
-    "name": "Hdjehe",
-    "category": "weapons",
-    "x": 1603,
-    "y": 11303,
-    "description": "Whejej",
-    "images": [
-      "img/Euhshe",
-      "img/jdjd"
-    ],
+    "loc_id": "loc-8574",
+    "name": "Сделка с наркотиками",
+    "category": "events",
+    "x": 2368,
+    "y": 7380,
+    "description": "Ночная сходка: вокруг сумки с хабаром и канистр с топливом припаркованы несколько машин и аэроглиссер, по периметру разбросаны фаеры. На месте можно забрать несколько пушек, наличку и товар примерно на $1 800.",
+    "images": [],
     "rarity": "common",
     "conditions": [
-      "high-wanted-risk"
+      "night"
     ],
     "verified": true,
     "name_en": null,
